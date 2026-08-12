@@ -1,0 +1,121 @@
+@import "tailwindcss";
+
+@theme {
+  --color-on-surface-variant: #b9cacb;
+  --color-tertiary-fixed-dim: #eac324;
+  --color-secondary-container: #feb700;
+  --color-on-tertiary-fixed: #231b00;
+  --color-primary-container: #00f0ff;
+  --color-tertiary: #fff5de;
+  --color-tertiary-container: #fed639;
+  --color-on-secondary-container: #6b4b00;
+  --color-background: #0d1515;
+  --color-inverse-primary: #006970;
+  --color-primary: #dbfcff;
+  --color-on-primary-container: #006970;
+  --color-on-primary-fixed: #002022;
+  --color-on-error: #690005;
+  --color-surface-tint: #00dbe9;
+  --color-surface-bright: #333b3b;
+  --color-on-error-container: #ffdad6;
+  --color-on-background: #dce4e5;
+  --color-secondary-fixed-dim: #ffba20;
+  --color-surface-container: #192122;
+  --color-surface-dim: #0d1515;
+  --color-primary-fixed-dim: #00dbe9;
+  --color-on-secondary-fixed-variant: #5e4200;
+  --color-error-container: #93000a;
+  --color-surface-container-high: #232b2c;
+  --color-surface-container-low: #151d1e;
+  --color-surface-container-lowest: #080f10;
+  --color-on-surface: #dce4e5;
+  --color-surface-container-highest: #2e3637;
+  --color-on-primary-fixed-variant: #004f54;
+  --color-on-primary: #00363a;
+  --color-inverse-on-surface: #2a3233;
+  --color-error: #ffb4ab;
+  --color-secondary: #ffdb9d;
+  --color-on-tertiary-container: #715d00;
+  --color-inverse-surface: #dce4e5;
+  --color-tertiary-fixed: #ffe179;
+  --color-outline-variant: #3b494b;
+  --color-surface: #0d1515;
+  --color-on-secondary-fixed: #271900;
+  --color-soft-red: #FF4D4D;
+  --color-on-tertiary: #3b2f00;
+  --color-on-tertiary-fixed-variant: #554500;
+  --color-secondary-fixed: #ffdea8;
+  --color-on-secondary: #412d00;
+  --color-outline: #849495;
+  --color-surface-variant: #2e3637;
+  --color-primary-fixed: #7df4ff;
+  --color-glass-border: rgba(255, 255, 255, 0.12);
+  --color-matrix-bg: #050A0F;
+  --color-utopian-teal: #008080;
+
+  --spacing-max-width: 1440px;
+  --spacing-margin-desktop: 80px;
+  --spacing-margin-mobile: 20px;
+  --spacing-unit: 8px;
+  --spacing-gutter: 24px;
+}
+
+@layer base {
+  html, body { margin: 0; padding: 0; }
+  body { overscroll-behavior: none; }
+}
+
+::-webkit-scrollbar { display: none; }
+
+.scroll-snap-type-y { scroll-snap-type: y mandatory; }
+.scroll-snap-align-start { scroll-snap-align: start; }
+
+.reveal-layer {
+  opacity: 0;
+  transform: translateY(40px);
+  transition: opacity 1s cubic-bezier(0.16, 1, 0.3, 1), transform 1s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.is-revealed > .reveal-layer, .is-revealed .reveal-layer, .is-revealed.reveal-layer {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+@keyframes float-ring {
+  0%, 100% { transform: translateY(0px) rotateX(70deg); }
+  50% { transform: translateY(-20px) rotateX(70deg); }
+}
+.animate-float-ring { animation: float-ring 6s ease-in-out infinite; }
+
+@keyframes aura-pulse {
+  0%, 100% { box-shadow: 0 0 40px rgba(0, 240, 255, 0.2), inset 0 0 20px rgba(254, 183, 0, 0.2); }
+  50% { box-shadow: 0 0 80px rgba(0, 240, 255, 0.5), inset 0 0 40px rgba(254, 183, 0, 0.4); }
+}
+.animate-aura-pulse { animation: aura-pulse 4s ease-in-out infinite; }
+
+.glass-panel {
+  background: rgba(13, 21, 21, 0.65);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.text-glow-primary {
+  text-shadow: 0 0 12px rgba(0, 240, 255, 0.45);
+}
+
+/* Custom fonts from provided config */
+@utility font-terminal-sm { font-family: "JetBrains Mono", monospace; }
+@utility font-headline-md { font-family: "Sora", sans-serif; }
+@utility font-body-md { font-family: "Hanken Grotesk", sans-serif; }
+@utility font-label-caps { font-family: "JetBrains Mono", monospace; }
+@utility font-headline-lg { font-family: "Sora", sans-serif; }
+@utility font-body-lg { font-family: "Hanken Grotesk", sans-serif; }
+@utility font-headline-xl { font-family: "Sora", sans-serif; }
+
+@utility text-terminal-sm { font-size: 13px; line-height: 1.5; font-weight: 400; }
+@utility text-headline-md { font-size: 32px; line-height: 1.3; font-weight: 600; }
+@utility text-body-md { font-size: 16px; line-height: 1.6; font-weight: 400; }
+@utility text-label-caps { font-size: 14px; line-height: 1.0; letter-spacing: 0.1em; font-weight: 500; }
+@utility text-headline-lg { font-size: 48px; line-height: 1.2; font-weight: 600; }
+@utility text-body-lg { font-size: 20px; line-height: 1.6; font-weight: 400; }
+@utility text-headline-xl { font-size: 72px; line-height: 1.1; letter-spacing: -0.02em; font-weight: 700; }

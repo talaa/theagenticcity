@@ -1,0 +1,6 @@
+{
+  "name": "Agentic Cityscape Sandbox",
+  "description": "A scroll-triggered 3D cityscape built with React Three Fiber, GSAP, and Tailwind CSS. Features an immersive WebGL environment and a waitlist capture interface.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
