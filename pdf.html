@@ -1,0 +1,931 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Agent & Skills Canvas</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<style>
+  :root {
+    --bg: #F5F0EB;
+    --fg: #1A1A1A;
+    --muted: #7A7267;
+    --accent-agent: #0D6B58;
+    --accent-agent-light: #E8F5F1;
+    --accent-agent-mid: #B8DDD2;
+    --accent-skill: #B45309;
+    --accent-skill-light: #FEF3E2;
+    --accent-skill-mid: #F5D9A0;
+    --card: #FFFFFF;
+    --border: #D6CEC5;
+    --border-light: #E8E2DB;
+    --shadow: rgba(26,26,26,0.06);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--fg);
+    min-height: 100vh;
+  }
+
+  /* --- Top Bar --- */
+  .top-bar {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: rgba(245,240,235,0.85);
+    backdrop-filter: blur(16px);
+    border-bottom: 1px solid var(--border-light);
+    padding: 14px 32px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .top-bar-left {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+  }
+  .logo-mark {
+    width: 36px; height: 36px;
+    background: var(--fg);
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--bg);
+    font-size: 16px;
+    font-weight: 700;
+    font-family: 'Space Grotesk', sans-serif;
+  }
+  .top-bar h1 {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 18px;
+    font-weight: 700;
+    letter-spacing: -0.3px;
+  }
+  .top-bar-right {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  /* --- Tabs --- */
+  .tabs {
+    display: flex;
+    gap: 4px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 4px;
+  }
+  .tab-btn {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    padding: 8px 18px;
+    border: none;
+    border-radius: 7px;
+    cursor: pointer;
+    background: transparent;
+    color: var(--muted);
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 7px;
+  }
+  .tab-btn:hover { color: var(--fg); }
+  .tab-btn.active-agent {
+    background: var(--accent-agent);
+    color: #fff;
+  }
+  .tab-btn.active-skill {
+    background: var(--accent-skill);
+    color: #fff;
+  }
+  .tab-btn i { font-size: 12px; }
+
+  /* --- Buttons --- */
+  .btn {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    padding: 9px 18px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    transition: all 0.2s;
+  }
+  .btn-primary {
+    background: var(--fg);
+    color: var(--bg);
+  }
+  .btn-primary:hover { opacity: 0.85; transform: translateY(-1px); }
+  .btn-outline {
+    background: var(--card);
+    color: var(--fg);
+    border: 1px solid var(--border);
+  }
+  .btn-outline:hover { background: var(--border-light); }
+  .btn i { font-size: 12px; }
+
+  /* --- Canvas Wrapper --- */
+  .canvas-container {
+    max-width: 1120px;
+    margin: 28px auto;
+    padding: 0 24px;
+  }
+  .canvas-page {
+    background: var(--card);
+    border-radius: 16px;
+    border: 1px solid var(--border-light);
+    box-shadow: 0 2px 20px var(--shadow), 0 0 0 1px var(--border-light);
+    overflow: hidden;
+    display: none;
+  }
+  .canvas-page.active { display: block; }
+
+  /* --- Canvas Header --- */
+  .canvas-header {
+    padding: 28px 36px 20px;
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    border-bottom: 2px solid var(--fg);
+  }
+  .canvas-header.agent-header { border-bottom-color: var(--accent-agent); }
+  .canvas-header.skill-header { border-bottom-color: var(--accent-skill); }
+  .canvas-title-group h2 {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 28px;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+    line-height: 1.1;
+  }
+  .canvas-title-group p {
+    font-size: 13px;
+    color: var(--muted);
+    margin-top: 4px;
+  }
+  .canvas-meta {
+    display: flex;
+    gap: 20px;
+    align-items: center;
+  }
+  .meta-field {
+    text-align: right;
+  }
+  .meta-label {
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--muted);
+    margin-bottom: 2px;
+  }
+  .meta-input {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    border: none;
+    border-bottom: 1.5px dashed var(--border);
+    background: transparent;
+    padding: 2px 4px;
+    outline: none;
+    text-align: right;
+    color: var(--fg);
+    min-width: 120px;
+    transition: border-color 0.2s;
+  }
+  .meta-input:focus { border-bottom-color: var(--accent-agent); }
+  .skill-canvas .meta-input:focus { border-bottom-color: var(--accent-skill); }
+
+  /* --- Canvas Grid --- */
+  .canvas-grid {
+    display: grid;
+    gap: 0;
+    padding: 0;
+  }
+
+  /* Agent Grid: 4 columns, specific row spans */
+  .agent-grid {
+    grid-template-columns: 1.2fr 1fr 1fr 1fr;
+    grid-template-rows: auto auto auto;
+  }
+  .agent-grid .cell-purpose { grid-column: 1; grid-row: 1 / 3; }
+  .agent-grid .cell-persona { grid-column: 2; grid-row: 1; }
+  .agent-grid .cell-users { grid-column: 3; grid-row: 1; }
+  .agent-grid .cell-objective { grid-column: 4; grid-row: 1; }
+  .agent-grid .cell-knowledge { grid-column: 2; grid-row: 2; }
+  .agent-grid .cell-tools { grid-column: 3; grid-row: 2; }
+  .agent-grid .cell-memory { grid-column: 4; grid-row: 2; }
+  .agent-grid .cell-decision { grid-column: 1 / 3; grid-row: 3; }
+  .agent-grid .cell-constraints { grid-column: 3; grid-row: 3; }
+  .agent-grid .cell-communication { grid-column: 4; grid-row: 3; }
+
+  /* Skill Grid: 3 columns */
+  .skill-grid {
+    grid-template-columns: 1fr 1fr 1fr;
+    grid-template-rows: auto auto auto;
+  }
+  .skill-grid .cell-skill-purpose { grid-column: 1; grid-row: 1 / 3; }
+  .skill-grid .cell-trigger { grid-column: 2; grid-row: 1; }
+  .skill-grid .cell-input { grid-column: 3; grid-row: 1; }
+  .skill-grid .cell-output { grid-column: 2; grid-row: 2; }
+  .skill-grid .cell-steps { grid-column: 3; grid-row: 2; }
+  .skill-grid .cell-tools { grid-column: 1; grid-row: 3; }
+  .skill-grid .cell-error { grid-column: 2; grid-row: 3; }
+  .skill-grid .cell-testing { grid-column: 3; grid-row: 3; }
+
+  /* --- Cell --- */
+  .cell {
+    padding: 16px 18px;
+    border-right: 1px solid var(--border-light);
+    border-bottom: 1px solid var(--border-light);
+    display: flex;
+    flex-direction: column;
+    min-height: 140px;
+  }
+  .cell:last-child,
+  .cell:nth-child(4n) { border-right: none; }
+  .skill-grid .cell:last-child,
+  .skill-grid .cell:nth-child(3n) { border-right: none; }
+
+  .cell-label {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    margin-bottom: 10px;
+    flex-shrink: 0;
+  }
+  .cell-icon {
+    width: 24px;
+    height: 24px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    flex-shrink: 0;
+  }
+  .agent-canvas .cell-icon {
+    background: var(--accent-agent-light);
+    color: var(--accent-agent);
+  }
+  .skill-canvas .cell-icon {
+    background: var(--accent-skill-light);
+    color: var(--accent-skill);
+  }
+  .cell-label span {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: var(--muted);
+  }
+
+  .cell-content {
+    flex: 1;
+    position: relative;
+  }
+  .cell-textarea {
+    width: 100%;
+    height: 100%;
+    min-height: 70px;
+    border: none;
+    background: transparent;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    line-height: 1.6;
+    color: var(--fg);
+    resize: none;
+    outline: none;
+  }
+  .cell-textarea::placeholder {
+    color: #C4BBB0;
+    font-style: italic;
+    font-weight: 400;
+  }
+
+  /* Footer row */
+  .canvas-footer {
+    padding: 12px 36px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-top: 1px solid var(--border-light);
+    background: #FAFAF8;
+  }
+  .canvas-footer p {
+    font-size: 10px;
+    color: var(--muted);
+    letter-spacing: 0.5px;
+  }
+
+  /* Hint tooltip */
+  .hint-bar {
+    max-width: 1120px;
+    margin: 0 auto 24px;
+    padding: 0 24px;
+  }
+  .hint-bar-inner {
+    background: var(--card);
+    border: 1px solid var(--border-light);
+    border-radius: 10px;
+    padding: 12px 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 12.5px;
+    color: var(--muted);
+  }
+  .hint-bar-inner i {
+    color: var(--accent-agent);
+    font-size: 14px;
+  }
+  .skill-canvas-active .hint-bar-inner i {
+    color: var(--accent-skill);
+  }
+
+  /* --- Print Styles --- */
+  @media print {
+    @page {
+      size: A4 landscape;
+      margin: 8mm;
+    }
+    body {
+      background: #fff !important;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
+    .top-bar, .hint-bar, .canvas-page:not(.active) {
+      display: none !important;
+    }
+    .canvas-page.active {
+      display: block !important;
+      border: none !important;
+      box-shadow: none !important;
+      border-radius: 0 !important;
+    }
+    .canvas-container {
+      margin: 0 !important;
+      padding: 0 !important;
+      max-width: 100% !important;
+    }
+    .canvas-header { padding: 16px 24px 12px !important; }
+    .canvas-title-group h2 { font-size: 22px !important; }
+    .cell { padding: 10px 12px !important; min-height: 100px !important; }
+    .cell-textarea { font-size: 11px !important; min-height: 50px !important; }
+    .cell-icon { width: 20px !important; height: 20px !important; font-size: 9px !important; }
+    .cell-label span { font-size: 9px !important; }
+    .canvas-footer { padding: 8px 24px !important; }
+    .meta-input { min-width: 90px !important; font-size: 11px !important; }
+    .agent-grid { grid-template-columns: 1.2fr 1fr 1fr 1fr !important; }
+    .skill-grid { grid-template-columns: 1fr 1fr 1fr !important; }
+    .canvas-page { page-break-after: avoid; page-break-inside: avoid; }
+  }
+
+  /* --- Animations --- */
+  @keyframes fadeSlideIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .canvas-page.active {
+    animation: fadeSlideIn 0.3s ease-out;
+  }
+
+  @keyframes pulseGlow {
+    0%, 100% { box-shadow: 0 2px 20px var(--shadow); }
+    50% { box-shadow: 0 2px 30px rgba(13,107,88,0.1); }
+  }
+  .canvas-page.active.agent-page {
+    animation: fadeSlideIn 0.3s ease-out, pulseGlow 4s ease-in-out infinite;
+  }
+
+  /* Responsive */
+  @media (max-width: 900px) {
+    .agent-grid { grid-template-columns: 1fr 1fr; }
+    .skill-grid { grid-template-columns: 1fr 1fr; }
+    .agent-grid .cell-purpose { grid-column: 1 / 3; grid-row: auto; }
+    .agent-grid .cell-decision { grid-column: 1 / 3; grid-row: auto; }
+    .skill-grid .cell-skill-purpose { grid-column: 1 / 3; grid-row: auto; }
+    .cell:nth-child(4n),
+    .cell:nth-child(3n) { border-right: 1px solid var(--border-light); }
+    .canvas-header { flex-direction: column; align-items: flex-start; gap: 14px; }
+    .canvas-meta { width: 100%; justify-content: flex-start; }
+    .meta-field { text-align: left; }
+    .meta-input { text-align: left; }
+    .top-bar { padding: 12px 16px; flex-wrap: wrap; gap: 10px; }
+    .top-bar-right { width: 100%; justify-content: flex-end; }
+  }
+  @media (max-width: 600px) {
+    .agent-grid, .skill-grid { grid-template-columns: 1fr; }
+    .agent-grid .cell-purpose,
+    .agent-grid .cell-decision,
+    .skill-grid .cell-skill-purpose { grid-column: auto; }
+    .cell { border-right: none !important; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .canvas-page.active { animation: none !important; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Top Bar -->
+<div class="top-bar" role="navigation" aria-label="Canvas navigation">
+  <div class="top-bar-left">
+    <div class="logo-mark" aria-hidden="true">AC</div>
+    <h1>Agent Canvas Studio</h1>
+  </div>
+  <div class="top-bar-right">
+    <div class="tabs" role="tablist">
+      <button class="tab-btn active-agent" role="tab" aria-selected="true" id="tab-agent" onclick="switchTab('agent')">
+        <i class="fa-solid fa-robot"></i> Agent Canvas
+      </button>
+      <button class="tab-btn" role="tab" aria-selected="false" id="tab-skill" onclick="switchTab('skill')">
+        <i class="fa-solid fa-bolt"></i> Skills Canvas
+      </button>
+    </div>
+    <button class="btn btn-outline" onclick="clearCurrent()" aria-label="Clear current canvas">
+      <i class="fa-solid fa-eraser"></i> Clear
+    </button>
+    <button class="btn btn-primary" onclick="printCurrent()" aria-label="Print current canvas as PDF">
+      <i class="fa-solid fa-file-pdf"></i> Export PDF
+    </button>
+  </div>
+</div>
+
+<!-- Hint Bar -->
+<div class="hint-bar" id="hintBar">
+  <div class="hint-bar-inner">
+    <i class="fa-solid fa-lightbulb"></i>
+    <span>Click any field to type directly. Fill in your agent definition, then hit <strong>Export PDF</strong> for a clean single-page handout.</span>
+  </div>
+</div>
+
+<!-- Canvas Container -->
+<div class="canvas-container">
+
+  <!-- ==================== AGENT CANVAS ==================== -->
+  <div class="canvas-page active agent-page" id="agent-canvas">
+    <header class="canvas-header agent-header">
+      <div class="canvas-title-group">
+        <h2>Agent Definition Canvas</h2>
+        <p>A structured blueprint for designing, aligning, and documenting an AI agent</p>
+      </div>
+      <div class="canvas-meta">
+        <div class="meta-field">
+          <div class="meta-label">Agent Name</div>
+          <input class="meta-input" type="text" placeholder="e.g. ResearchMate" aria-label="Agent name">
+        </div>
+        <div class="meta-field">
+          <div class="meta-label">Version</div>
+          <input class="meta-input" type="text" placeholder="v1.0" aria-label="Version" style="min-width:60px;">
+        </div>
+        <div class="meta-field">
+          <div class="meta-label">Owner</div>
+          <input class="meta-input" type="text" placeholder="Team / Person" aria-label="Owner">
+        </div>
+        <div class="meta-field">
+          <div class="meta-label">Date</div>
+          <input class="meta-input" type="text" id="agent-date" aria-label="Date">
+        </div>
+      </div>
+    </header>
+
+    <div class="canvas-grid agent-grid">
+      <!-- Purpose -->
+      <div class="cell cell-purpose">
+        <div class="cell-label">
+          <div class="cell-icon"><i class="fa-solid fa-bullseye"></i></div>
+          <span>Purpose & Scope</span>
+        </div>
+        <div class="cell-content">
+          <textarea class="cell-textarea" placeholder="What problem does this agent solve? What is its reason for existing? Define the boundaries of what it should and should not do. What value does it deliver?" aria-label="Purpose and scope"></textarea>
+        </div>
+      </div>
+
+      <!-- Persona -->
+      <div class="cell cell-persona">
+        <div class="cell-label">
+          <div class="cell-icon"><i class="fa-solid fa-masks-theater"></i></div>
+          <span>Persona / Role</span>
+        </div>
+        <div class="cell-content">
+          <textarea class="cell-textarea" placeholder="Who is this agent? Expert researcher? Friendly assistant? Stern reviewer? Define the personality traits, expertise level, and professional identity." aria-label="Persona and role"></textarea>
+        </div>
+      </div>
+
+      <!-- Target Users -->
+      <div class="cell cell-users">
+        <div class="cell-label">
+          <div class="cell-icon"><i class="fa-solid fa-users"></i></div>
+          <span>Target Users</span>
+        </div>
+        <div class="cell-content">
+          <textarea class="cell-textarea" placeholder="Who interacts with this agent? List primary and secondary users. What are their skill levels, goals, and contexts of use?" aria-label="Target users"></textarea>
+        </div>
+      </div>
+
+      <!-- Objective -->
+      <div class="cell cell-objective">
+        <div class="cell-label">
+          <div class="cell-icon"><i class="fa-solid fa-flag-checkered"></i></div>
+          <span>Core Objective</span>
+        </div>
+        <div class="cell-content">
+          <textarea class="cell-textarea" placeholder="What is the single most important outcome this agent must produce? How do you measure success? Define the primary success metric." aria-label="Core objective"></textarea>
+        </div>
+      </div>
+
+      <!-- Knowledge Base -->
+      <div class="cell cell-knowledge">
+        <div class="cell-label">
+          <div class="cell-icon"><i class="fa-solid fa-book"></i></div>
+          <span>Knowledge Base</span>
+        </div>
+        <div class="cell-content">
+          <textarea class="cell-textarea" placeholder="What information does the agent need? Documents, APIs, databases, FAQs, domain glossaries. How is knowledge kept current?" aria-label="Knowledge base"></textarea>
+        </div>
+      </div>
+
+      <!-- Tools -->
+      <div class="cell cell-tools">
+        <div class="cell-label">
+          <div class="cell-icon"><i class="fa-solid fa-wrench"></i></div>
+          <span>Tools & Capabilities</span>
+        </div>
+        <div class="cell-content">
+          <textarea class="cell-textarea" placeholder="What external tools can it invoke? Web search, code execution, API calls, file I/O, database queries, calculators, etc." aria-label="Tools and capabilities"></textarea>
+        </div>
+      </div>
+
+      <!-- Memory -->
+      <div class="cell cell-memory">
+        <div class="cell-label">
+          <div class="cell-icon"><i class="fa-solid fa-brain"></i></div>
+          <span>Memory Strategy</span>
+        </div>
+        <div class="cell-content">
+          <textarea class="cell-textarea" placeholder="Short-term: conversation buffer size? Long-term: what gets persisted? User profiles? Session state? Vector store for RAG?" aria-label="Memory strategy"></textarea>
+        </div>
+      </div>
+
+      <!-- Decision Framework -->
+      <div class="cell cell-decision">
+        <div class="cell-label">
+          <div class="cell-icon"><i class="fa-solid fa-sitemap"></i></div>
+          <span>Decision Framework & Workflow</span>
+        </div>
+        <div class="cell-content">
+          <textarea class="cell-textarea" placeholder="How does the agent decide what to do next? Outline the reasoning chain, planning approach, multi-step logic, when to ask for clarification vs. act autonomously, and any routing/branching rules." aria-label="Decision framework and workflow"></textarea>
+        </div>
+      </div>
+
+      <!-- Constraints -->
+      <div class="cell cell-constraints">
+        <div class="cell-label">
+          <div class="cell-icon"><i class="fa-solid fa-shield-halved"></i></div>
+          <span>Guardrails & Constraints</span>
+        </div>
+        <div class="cell-content">
+          <textarea class="cell-textarea" placeholder="What must it NEVER do? Topics to refuse, actions to block, output format limits, token/length limits, safety policies, compliance requirements." aria-label="Guardrails and constraints"></textarea>
+        </div>
+      </div>
+
+      <!-- Communication Style -->
+      <div class="cell cell-communication">
+        <div class="cell-label">
+          <div class="cell-icon"><i class="fa-solid fa-comments"></i></div>
+          <span>Communication Style</span>
+        </div>
+        <div class="cell-content">
+          <textarea class="cell-textarea" placeholder="Tone, formality level, verbosity, use of emojis, structured vs. narrative output, language, how it handles uncertainty or admits ignorance." aria-label="Communication style"></textarea>
+        </div>
+      </div>
+    </div>
+
+    <footer class="canvas-footer">
+      <p>AGENT DEFINITION CANVAS &mdash; CONFIDENTIAL</p>
+      <p>Fill all fields &rarr; Export PDF &rarr; Share with stakeholders</p>
+    </footer>
+  </div>
+
+  <!-- ==================== SKILLS CANVAS ==================== -->
+  <div class="canvas-page skill-canvas" id="skill-canvas">
+    <header class="canvas-header skill-header">
+      <div class="canvas-title-group">
+        <h2>Skill Definition Canvas</h2>
+        <p>A structured blueprint for designing, documenting, and validating an agent skill</p>
+      </div>
+      <div class="canvas-meta">
+        <div class="meta-field">
+          <div class="meta-label">Skill Name</div>
+          <input class="meta-input" type="text" placeholder="e.g. WebSearch" aria-label="Skill name">
+        </div>
+        <div class="meta-field">
+          <div class="meta-label">Version</div>
+          <input class="meta-input" type="text" placeholder="v1.0" aria-label="Version" style="min-width:60px;">
+        </div>
+        <div class="meta-field">
+          <div class="meta-label">Parent Agent</div>
+          <input class="meta-input" type="text" placeholder="Which agent?" aria-label="Parent agent">
+        </div>
+        <div class="meta-field">
+          <div class="meta-label">Date</div>
+          <input class="meta-input" type="text" id="skill-date" aria-label="Date">
+        </div>
+      </div>
+    </header>
+
+    <div class="canvas-grid skill-grid">
+      <!-- Skill Purpose -->
+      <div class="cell cell-skill-purpose">
+        <div class="cell-label">
+          <div class="cell-icon"><i class="fa-solid fa-bullseye"></i></div>
+          <span>Skill Purpose & Description</span>
+        </div>
+        <div class="cell-content">
+          <textarea class="cell-textarea" placeholder="What does this skill do in one sentence? Then expand: why is this skill needed as a distinct capability? What would break without it? How does it fit into the agent's overall behavior? What is the expected quality bar?" aria-label="Skill purpose and description"></textarea>
+        </div>
+      </div>
+
+      <!-- Trigger -->
+      <div class="cell cell-trigger">
+        <div class="cell-label">
+          <div class="cell-icon"><i class="fa-solid fa-fingerprint"></i></div>
+          <span>Trigger Conditions</span>
+        </div>
+        <div class="cell-content">
+          <textarea class="cell-textarea" placeholder="When should this skill activate? User intent patterns, keywords, context signals, confidence thresholds, explicit invocations. Be specific." aria-label="Trigger conditions"></textarea>
+        </div>
+      </div>
+
+      <!-- Input -->
+      <div class="cell cell-input">
+        <div class="cell-label">
+          <div class="cell-icon"><i class="fa-solid fa-right-to-bracket"></i></div>
+          <span>Input Schema</span>
+        </div>
+        <div class="cell-content">
+          <textarea class="cell-textarea" placeholder="What parameters does this skill require? List each field: name, type, required/optional, constraints, defaults, and examples. Think JSON schema." aria-label="Input schema"></textarea>
+        </div>
+      </div>
+
+      <!-- Output -->
+      <div class="cell cell-output">
+        <div class="cell-label">
+          <div class="cell-icon"><i class="fa-solid fa-right-from-bracket"></i></div>
+          <span>Output Schema</span>
+        </div>
+        <div class="cell-content">
+          <textarea class="cell-textarea" placeholder="What does this skill return? Field names, types, formats, success/failure signals, pagination, and a concrete example output." aria-label="Output schema"></textarea>
+        </div>
+      </div>
+
+      <!-- Steps -->
+      <div class="cell cell-steps">
+        <div class="cell-label">
+          <div class="cell-icon"><i class="fa-solid fa-list-ol"></i></div>
+          <span>Execution Steps</span>
+        </div>
+        <div class="cell-content">
+          <textarea class="cell-textarea" placeholder="Step-by-step workflow: 1) Validate input, 2) Call API, 3) Parse response, 4) Format output... Include branching logic and decision points." aria-label="Execution steps"></textarea>
+        </div>
+      </div>
+
+      <!-- Tools -->
+      <div class="cell cell-tools">
+        <div class="cell-label">
+          <div class="cell-icon"><i class="fa-solid fa-plug"></i></div>
+          <span>Dependencies & Tools</span>
+        </div>
+        <div class="cell-content">
+          <textarea class="cell-textarea" placeholder="External APIs, libraries, services, authentication requirements, rate limits, credentials needed. What must be available for this skill to work?" aria-label="Dependencies and tools"></textarea>
+        </div>
+      </div>
+
+      <!-- Error Handling -->
+      <div class="cell cell-error">
+        <div class="cell-label">
+          <div class="cell-icon"><i class="fa-solid fa-triangle-exclamation"></i></div>
+          <span>Error Handling</span>
+        </div>
+        <div class="cell-content">
+          <textarea class="cell-textarea" placeholder="What can go wrong? Timeout, auth failure, bad data, rate limit, empty results. For each: retry strategy, fallback behavior, user message." aria-label="Error handling"></textarea>
+        </div>
+      </div>
+
+      <!-- Testing -->
+      <div class="cell cell-testing">
+        <div class="cell-label">
+          <div class="cell-icon"><i class="fa-solid fa-flask-vial"></i></div>
+          <span>Testing & Validation</span>
+        </div>
+        <div class="cell-content">
+          <textarea class="cell-textarea" placeholder="Happy path test case, edge cases, failure scenarios. Performance SLA (latency, accuracy). How to validate before deployment?" aria-label="Testing and validation"></textarea>
+        </div>
+      </div>
+    </div>
+
+    <footer class="canvas-footer">
+      <p>SKILL DEFINITION CANVAS &mdash; CONFIDENTIAL</p>
+      <p>Fill all fields &rarr; Export PDF &rarr; Hand off to engineering</p>
+    </footer>
+  </div>
+
+</div>
+
+<script>
+  // Set today's date in the date fields
+  const today = new Date().toISOString().split('T')[0];
+  document.getElementById('agent-date').value = today;
+  document.getElementById('skill-date').value = today;
+
+  // Tab switching
+  function switchTab(tab) {
+    const agentCanvas = document.getElementById('agent-canvas');
+    const skillCanvas = document.getElementById('skill-canvas');
+    const tabAgent = document.getElementById('tab-agent');
+    const tabSkill = document.getElementById('tab-skill');
+    const hintBar = document.getElementById('hintBar');
+
+    // Remove all active classes
+    agentCanvas.classList.remove('active');
+    skillCanvas.classList.remove('active');
+    tabAgent.className = 'tab-btn';
+    tabSkill.className = 'tab-btn';
+    document.body.classList.remove('skill-canvas-active');
+
+    if (tab === 'agent') {
+      agentCanvas.classList.add('active');
+      tabAgent.classList.add('active-agent');
+      tabAgent.setAttribute('aria-selected', 'true');
+      tabSkill.setAttribute('aria-selected', 'false');
+      hintBar.querySelector('span').innerHTML = 'Click any field to type directly. Fill in your agent definition, then hit <strong>Export PDF</strong> for a clean single-page handout.';
+    } else {
+      skillCanvas.classList.add('active');
+      tabSkill.classList.add('active-skill');
+      tabSkill.setAttribute('aria-selected', 'true');
+      tabAgent.setAttribute('aria-selected', 'false');
+      document.body.classList.add('skill-canvas-active');
+      hintBar.querySelector('span').innerHTML = 'Define each skill independently. One canvas per skill. Hit <strong>Export PDF</strong> to generate a single-page handout for your team.';
+    }
+  }
+
+  // Print current canvas
+  function printCurrent() {
+    window.print();
+  }
+
+  // Clear current canvas
+  function clearCurrent() {
+    const activeCanvas = document.querySelector('.canvas-page.active');
+    const textareas = activeCanvas.querySelectorAll('.cell-textarea');
+    const inputs = activeCanvas.querySelectorAll('.meta-input');
+
+    // Check if anything is filled
+    let hasContent = false;
+    textareas.forEach(ta => { if (ta.value.trim()) hasContent = true; });
+    inputs.forEach(inp => {
+      if (inp.id && inp.id.includes('date')) return; // skip date
+      if (inp.value.trim()) hasContent = true;
+    });
+
+    if (!hasContent) {
+      showToast('Canvas is already empty');
+      return;
+    }
+
+    // Show inline confirmation
+    showConfirm('Clear all fields on this canvas?', () => {
+      textareas.forEach(ta => { ta.value = ''; });
+      inputs.forEach(inp => {
+        if (inp.id && inp.id.includes('date')) return;
+        inp.value = '';
+      });
+      showToast('Canvas cleared');
+    });
+  }
+
+  // Toast notification
+  function showToast(message) {
+    // Remove existing toast
+    const existing = document.querySelector('.toast-notification');
+    if (existing) existing.remove();
+
+    const toast = document.createElement('div');
+    toast.className = 'toast-notification';
+    toast.textContent = message;
+    toast.style.cssText = `
+      position: fixed;
+      bottom: 28px;
+      left: 50%;
+      transform: translateX(-50%) translateY(20px);
+      background: #1A1A1A;
+      color: #F5F0EB;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13px;
+      font-weight: 500;
+      padding: 10px 22px;
+      border-radius: 8px;
+      z-index: 9999;
+      opacity: 0;
+      transition: all 0.3s ease;
+      pointer-events: none;
+    `;
+    document.body.appendChild(toast);
+
+    requestAnimationFrame(() => {
+      toast.style.opacity = '1';
+      toast.style.transform = 'translateX(-50%) translateY(0)';
+    });
+
+    setTimeout(() => {
+      toast.style.opacity = '0';
+      toast.style.transform = 'translateX(-50%) translateY(20px)';
+      setTimeout(() => toast.remove(), 300);
+    }, 2200);
+  }
+
+  // Inline confirmation modal (no alert/confirm)
+  function showConfirm(message, onConfirm) {
+    const existing = document.querySelector('.confirm-overlay');
+    if (existing) existing.remove();
+
+    const overlay = document.createElement('div');
+    overlay.className = 'confirm-overlay';
+    overlay.style.cssText = `
+      position: fixed; inset: 0;
+      background: rgba(26,26,26,0.3);
+      backdrop-filter: blur(4px);
+      z-index: 10000;
+      display: flex; align-items: center; justify-content: center;
+      animation: fadeIn 0.15s ease;
+    `;
+
+    const box = document.createElement('div');
+    box.style.cssText = `
+      background: #fff;
+      border-radius: 14px;
+      padding: 28px 32px;
+      max-width: 360px;
+      width: 90%;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+      animation: scaleIn 0.2s ease;
+    `;
+    box.innerHTML = `
+      <p style="font-family:'DM Sans',sans-serif; font-size:15px; font-weight:600; color:#1A1A1A; margin-bottom:20px; line-height:1.4;">${message}</p>
+      <div style="display:flex; gap:10px; justify-content:flex-end;">
+        <button id="confirm-cancel" style="font-family:'DM Sans',sans-serif; font-size:13px; font-weight:600; padding:8px 18px; border:1px solid #D6CEC5; border-radius:8px; background:#fff; color:#1A1A1A; cursor:pointer;">Cancel</button>
+        <button id="confirm-ok" style="font-family:'DM Sans',sans-serif; font-size:13px; font-weight:600; padding:8px 18px; border:none; border-radius:8px; background:#C0392B; color:#fff; cursor:pointer;">Clear</button>
+      </div>
+    `;
+    overlay.appendChild(box);
+    document.body.appendChild(overlay);
+
+    // Add keyframe styles if not present
+    if (!document.getElementById('confirm-keyframes')) {
+      const style = document.createElement('style');
+      style.id = 'confirm-keyframes';
+      style.textContent = `
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes scaleIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
+      `;
+      document.head.appendChild(style);
+    }
+
+    document.getElementById('confirm-cancel').onclick = () => overlay.remove();
+    document.getElementById('confirm-ok').onclick = () => { overlay.remove(); onConfirm(); };
+    overlay.onclick = (e) => { if (e.target === overlay) overlay.remove(); };
+  }
+
+  // Auto-resize textareas to fit content
+  function autoResize(textarea) {
+    textarea.style.height = 'auto';
+    textarea.style.height = Math.max(70, textarea.scrollHeight) + 'px';
+  }
+
+  document.querySelectorAll('.cell-textarea').forEach(ta => {
+    ta.addEventListener('input', () => autoResize(ta));
+    // Initial sizing
+    autoResize(ta);
+  });
+
+  // Keyboard shortcut: Ctrl/Cmd + P to print
+  document.addEventListener('keydown', (e) => {
+    if ((e.ctrlKey || e.metaKey) && e.key === 'p') {
+      e.preventDefault();
+      printCurrent();
+    }
+  });
+</script>
+</body>
+</html>

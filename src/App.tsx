@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 import { AgentDrone } from './components/AgentDrone';
+import chapter2Bg from './assets/chapter2_bg.jpg';
 
 export default function App() {
   useEffect(() => {
@@ -103,12 +104,12 @@ export default function App() {
           </section>
 
           {/* ========== CHAPTER 02 — SERVICES ========== */}
-          <section id="services" className="scroll-section min-h-screen w-full relative flex items-center snap-start py-24"
-            style={{ backgroundImage: "url('https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=2564&auto=format&fit=crop')", backgroundSize: 'cover', backgroundPosition: 'center', backgroundAttachment: 'fixed' }}>
+          <section id="services" className="scroll-section min-h-screen w-full relative flex items-center snap-start py-24 bg-cover bg-center"
+            style={{ backgroundImage: `url("${chapter2Bg}")` }}>
             
-            {/* Dark overlay with a subtle yellow/neon-banana tint */}
-            <div className="absolute inset-0 bg-gradient-to-b from-background via-background/90 to-background/80 mix-blend-multiply"></div>
-            <div className="absolute inset-0 bg-secondary/5 mix-blend-overlay"></div>
+            {/* Translucent overlay for text readability while showcasing background image */}
+            <div className="absolute inset-0 bg-gradient-to-b from-background/70 via-background/40 to-background/75 pointer-events-none"></div>
+            <div className="absolute inset-0 bg-secondary/5 pointer-events-none"></div>
 
             <div className="relative z-10 w-full px-margin-mobile md:px-margin-desktop max-w-[1440px] mx-auto">
               <div className="mb-16 reveal-layer">
