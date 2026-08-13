@@ -1,0 +1,53 @@
+---
+title: "Enterprise AI Agent Architecture Map 2026"
+slug: "enterprise-agent-architecture-map"
+type: "infographic"
+publishDate: "2026-07-10"
+author: "Tamer"
+excerpt: "A comprehensive visual infographic mapping the 5 core layers of enterprise agentic deployment: routing, execution, memory, guardrails, and audit."
+tags: ["infographic", "architecture", "enterprise"]
+thumbnail: "/content-assets/architecture-map-thumb.png"
+seoTitle: "Enterprise AI Agent Architecture Map | Agentic City"
+seoDescription: "Visual reference guide breakdown of the 5 essential layers needed to build robust, scalable AI agent systems in production."
+infographicImage: "/content-assets/enterprise-agent-architecture-map.png"
+transcript: false
+linkedinDiscussionUrl: "https://www.linkedin.com/company/agentic-city"
+---
+
+# Enterprise AI Agent Architecture Map 2026
+
+Building production-ready AI agent systems requires moving beyond simple prompt chains into a layered, resilient architecture. This visual blueprint outlines the 5 essential structural layers powering modern enterprise agent stacks.
+
+---
+
+## Detailed Layer Breakdown
+
+### Layer 1: Intent Routing & Gateway
+The entry point for all incoming user requests, webhooks, and programmatic triggers.
+- **Semantic Router**: Classifies incoming query intent and routes to specialized sub-agents.
+- **Input Sanitizer**: Filters prompt injection vectors, malicious payloads, and out-of-bounds parameters.
+- **Rate Limiter & Token Accounting**: Protects downstream LLM inference providers from sudden traffic spikes.
+
+### Layer 2: Multi-Agent State Graph & Execution
+The core computational engine orchestrating task decomposition and execution.
+- **State DAG**: Defines explicit state transitions, parallel branch execution, and join nodes.
+- **Tool Invocation Engine**: Safely executes internal APIs, database queries, and external webhooks with strict parameter schema validation.
+- **RePlan & Recovery**: Evaluates step success and adjusts remaining execution graph steps dynamically.
+
+### Layer 3: Context & Memory Management
+Ensures context relevance without blowing past context window budget limits.
+- **Vector Retrieval (RAG)**: Retrieves enterprise knowledge chunks matching current task context.
+- **Episodic Session Memory**: Persists conversation turn history across multi-step interactions.
+- **Prompt Caching Layer**: Reuses static prompt prefixes across agent handoffs to minimize latency.
+
+### Layer 4: Real-Time Guardrails & Quality Control
+Protects business operations from unintended model outputs.
+- **Schema Enforcement**: Guarantees JSON output compliance before triggering state transitions.
+- **PII & Sensitivity Redaction**: Masks sensitive customer data before sending payloads to external model providers.
+- **Deterministic Circuit Breakers**: Halts agent execution when error counts or token budgets exceed safe thresholds.
+
+### Layer 5: Telemetry, Audit & Compliance
+Provides full observability into agent runtime behavior.
+- **OpenTelemetry Tracing**: Logs step execution duration, model latency, and token consumption.
+- **Immutable Audit Log**: Stores full prompt inputs, tool calls, and model outputs for compliance reviews.
+- **Evaluation Benchmarks**: Continuously tests agent task completion rates against synthetic test sets.

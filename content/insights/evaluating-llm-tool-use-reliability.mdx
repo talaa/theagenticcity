@@ -1,0 +1,65 @@
+---
+title: "Evaluating LLM Tool-Use Reliability in Non-Deterministic Environments"
+slug: "evaluating-llm-tool-use-reliability"
+type: "article"
+publishDate: "2026-06-28"
+author: "Tamer"
+excerpt: "Why traditional unit tests fail for AI agents and how to construct synthetic evaluation suites for tool-calling reliability."
+tags: ["evals", "reliability", "tool-use"]
+thumbnail: "/content-assets/tool-use-thumb.png"
+seoTitle: "Evaluating LLM Tool-Use Reliability | Agentic City"
+seoDescription: "Learn how to build synthetic evaluation pipelines to measure and improve AI agent tool-calling accuracy in production."
+transcript: false
+linkedinDiscussionUrl: "https://www.linkedin.com/company/agentic-city"
+---
+
+# Evaluating LLM Tool-Use Reliability in Non-Deterministic Environments
+
+When software engineering teams move from deterministic APIs to agentic workflows, traditional unit testing models break down. A deterministic test expects function `f(x)` to return value `y` every single time. However, an LLM agent deciding *which* tool to call, *when* to call it, and *how* to format parameter arguments operates in a probabilistic space.
+
+In this deep dive, we walk through the methodology for building robust evaluation suites specifically tuned for measuring AI agent tool-use reliability in production.
+
+---
+
+## 1. The Three Pillars of Agent Tool Evaluation
+
+To accurately evaluate an agent's ability to use tools effectively, tests must evaluate three distinct failure modes:
+
+1. **Tool Selection Accuracy**: Did the agent select the correct tool given the user query and available tool definitions?
+2. **Argument Schema Compliance**: Are the generated arguments formatted according to the tool's JSON Schema specification without missing required fields or invalid data types?
+3. **Sequence & Handoff Integrity**: In a multi-tool execution path, did the agent invoke dependent tools in the correct logical sequence?
+
+---
+
+## 2. Constructing Synthetic Evaluation Datasets
+
+Relying solely on production logs introduces bias toward paths your users have already explored. To achieve comprehensive test coverage, we generate synthetic evaluation suites using adversarial prompt generation:
+
+```typescript
+interface TestScenario {
+  id: string;
+  userPrompt: string;
+  expectedToolCalls: Array<{
+    toolName: string;
+    requiredArguments: Record<string, any>;
+  }>;
+  forbiddenToolCalls?: string[];
+}
+```
+
+By generating edge-case scenarios (e.g., ambiguous user prompts, conflicting parameters, missing mandatory data), you can stress-test how your agent graph handles ambiguity.
+
+---
+
+## 3. Implementing Automated Evaluation Pass-Rates
+
+Instead of relying on human manual inspection for every evaluation run, we use an automated judge pipeline combining assertion-based checks and LLM-as-a-Judge evaluations:
+
+- **Exact Schema Match**: Assert that generated JSON payloads validate cleanly against your JSON Schema using standard validators.
+- **Semantic Parameter Verification**: For free-text arguments (e.g., search queries or summary notes), use a lightweight LLM judge to score semantic equivalence on a 1–5 scale.
+
+---
+
+## Conclusion & Best Practices
+
+Measuring tool-use reliability is not a one-time step before launch—it must be integrated into your continuous integration (CI/CD) deployment pipeline. By failing builds whenever synthetic tool-use accuracy drops below target thresholds (e.g., 95%), you ensure model upgrades or prompt tweaks never degrade agent performance in production.

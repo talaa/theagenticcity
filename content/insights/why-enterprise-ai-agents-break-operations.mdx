@@ -1,0 +1,42 @@
+---
+title: "Why Enterprise AI Agents Break Operations"
+slug: "why-enterprise-ai-agents-break-operations"
+type: "podcast"
+publishDate: "2026-08-13"
+author: "Tamer"
+excerpt: "A deep dive into common failure modes when deploying AI agents at enterprise scale and how to build resilient operational guardrails."
+tags: ["podcast", "enterprise", "reliability", "orchestration"]
+thumbnail: "/content-assets/multi-agent-podcast-thumb.png"
+seoTitle: "Why Enterprise AI Agents Break Operations | Agentic City"
+seoDescription: "Learn why enterprise AI agents break in production and how to build deterministic state machines and guardrails."
+podcastEmbedUrl: "https://open.spotify.com/embed/episode/6xFEkCIoxy1oqglWdd42MQ"
+transcript: true
+linkedinDiscussionUrl: "https://www.linkedin.com/company/agentic-city"
+---
+
+# Why Enterprise AI Agents Break Operations
+
+In this episode, we unpack why AI agents that perform flawlessly in demos often break down when integrated into live enterprise operations.
+
+---
+
+## Key Discussion Points
+
+1. **The Gap Between Demos and Production**: Unhandled API rate limits, non-deterministic model outputs, and missing state persistence.
+2. **Context Window Inflation**: How runaway agent loops consume token budgets and degrade reasoning quality.
+3. **Designing Resilient Operational Guardrails**: Circuit breakers, strict JSON Schema validation, and human-in-the-loop escalation paths.
+
+---
+
+## Podcast Transcript
+
+**[00:00] Tamer**: Welcome to this episode of *Agentic City Insights*. Today we're tackling a question we hear from enterprise engineering leaders every week: why do AI agents that look amazing in a demo break down when placed in front of real operational workflows?
+
+**[01:30] Tamer**: The core issue boils down to deterministic boundaries. In a controlled test environment, your prompt assumptions hold. But in production, external APIs return unexpected formats, network latency spikes, and LLMs occasionally deviate from prompt instructions.
+
+**[04:15] Tamer**: To build resilient agentic systems, you need three layers of operational defense:
+- **Layer 1: Strict Input/Output Schema Contracts** using Zod or Pydantic.
+- **Layer 2: Hard Circuit Breakers** that halt agent execution after N retries or $M token spend.
+- **Layer 3: Replayability** via OpenTelemetry logging at every node transition.
+
+**[08:00] Tamer**: Listen to the full episode using the Spotify player above for all the details!

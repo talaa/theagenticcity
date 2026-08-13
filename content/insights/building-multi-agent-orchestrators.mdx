@@ -1,0 +1,50 @@
+---
+title: "Building Multi-Agent Orchestrators for Enterprise Workflows"
+slug: "building-multi-agent-orchestrators"
+type: "podcast"
+publishDate: "2026-07-20"
+author: "Tamer"
+excerpt: "An in-depth podcast conversation on designing deterministic multi-agent state machines with zero-loop safety guarantees."
+tags: ["orchestration", "architecture", "podcast"]
+thumbnail: "/content-assets/multi-agent-podcast-thumb.png"
+seoTitle: "Building Multi-Agent Orchestrators | Agentic City Podcast"
+seoDescription: "Listen to our deep dive on multi-agent state machines, error handling, and deterministic task graph execution."
+podcastEmbedUrl: "https://open.spotify.com/embed/episode/7g2j03X1w2b3c4d5e6f7g8"
+transcript: true
+linkedinDiscussionUrl: "https://www.linkedin.com/company/agentic-city"
+---
+
+# Building Multi-Agent Orchestrators for Enterprise Workflows
+
+In this podcast episode of *The Agentic Era*, we sit down with leading AI infrastructure engineers to discuss the transition from single autonomous agents to deterministic multi-agent graph orchestrators in mission-critical business environments.
+
+---
+
+## Episode Highlights & Core Topics
+
+1. **Why Single-Agent Loops Fail at Scale**
+   - Unlimited execution loops, state hallucination, and cascading failures in unconstrained agent setups.
+2. **Directed Acyclic Graphs (DAGs) vs. Dynamic Routing**
+   - Striking the balance between rigid state machines and dynamic LLM routing decisions.
+3. **Circuit Breakers & Hard Fallbacks**
+   - Implementing max-iteration counters, cost caps, and deterministic fallback handlers when confidence scores drop below threshold.
+
+---
+
+## Full Podcast Transcript
+
+**[00:00] Host**: Welcome to *The Agentic Era*. Today I'm joined by Tamer to talk about multi-agent orchestration architecture. Tamer, thanks for joining us.
+
+**[00:45] Tamer**: Happy to be here! Excited to dive into what actually happens when you push agentic systems beyond toy demos into enterprise production.
+
+**[02:10] Host**: Let's start with the common failure modes. What breaks first when companies try to deploy an autonomous agent into operational workflows?
+
+**[02:30] Tamer**: Unbounded loop execution and missing schema contracts. If an agent is given free rein to re-plan endlessly without deterministic termination conditions, it will eventually get stuck in infinite retry loops or hallucinate intermediate tool inputs.
+
+**[05:15] Host**: How do you prevent those loops without crippling the agent's reasoning capability?
+
+**[05:40] Tamer**: We enforce typed state machines using schemas like Zod or Pydantic. Each node in the agent graph must produce a strictly typed output state before transitioning to the next edge. If validation fails twice, the router automatically hands off execution to a fallback node or human-in-the-loop review queue.
+
+**[12:00] Host**: That brings up governance. How do enterprise compliance teams audit these decisions?
+
+**[12:30] Tamer**: Telemetry logging at every edge transition. By recording input state, selected tool parameters, prompt version hashes, and model output tokens into an immutable telemetry log, every single agentic decision is fully replayable and auditable.
