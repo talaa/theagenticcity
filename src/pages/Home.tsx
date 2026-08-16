@@ -302,50 +302,112 @@ export function Home() {
             </div>
           </section>
 
-          {/* ========== CHAPTER 04 — METHOD ========== */}
+          {/* ========== CHAPTER 04 — TWO PATHS ========== */}
           <section id="method" className="scroll-section min-h-screen w-full relative flex items-center justify-center snap-start py-24"
             style={{ backgroundImage: "url('https://lh3.googleusercontent.com/aida-public/AB6AXuA_rXZcWkTVoGDbIXxbj6OWOgI6W3oHIEd4JxbEkdErvULeF_awPuQkAhQF2Xp6mXsjH3sAtZplNFRbaVqUw7RebVTvuSxxxTK_RRu4NOT5fTRhmOa2-plFJE4o2VaDAGvvI1d5iUKGdgIfz37CNTj19-mqdKfBUpSBvnidzkQD_OaB6Qi9oT5h0z3SDTLXpFvyNcYqutUMbe4uMIUNiwvQLeiTTOFl3Yi7wjjzYBZ-tlOsWTHrt1C_JQ')", backgroundSize: 'cover', backgroundPosition: 'center', backgroundAttachment: 'fixed' }}>
             
-            <div className="absolute inset-0 bg-background/80"></div>
+            <div className="absolute inset-0 bg-background/85"></div>
 
-            <div className="relative z-10 text-center px-margin-mobile md:px-margin-desktop w-full max-w-4xl mx-auto reveal-layer">
-              <div className="w-28 h-28 mx-auto mb-10 relative flex items-center justify-center">
-                <div className="absolute inset-0 rounded-full border border-primary/20 animate-spin" style={{ animationDuration: '12s' }}></div>
-                <div className="absolute inset-3 rounded-full border border-secondary/20 animate-spin" style={{ animationDuration: '8s', animationDirection: 'reverse' }}></div>
-                <div className="w-14 h-14 bg-surface-container rounded-full glass-panel flex items-center justify-center animate-aura-pulse">
-                  <span className="material-symbols-outlined text-primary text-2xl">hub</span>
-                </div>
+            <div className="relative z-10 w-full px-margin-mobile md:px-margin-desktop max-w-[1200px] mx-auto">
+              {/* Header */}
+              <div className="text-center mb-16 reveal-layer">
+                <span className="font-label-caps text-label-caps text-secondary tracking-widest block mb-4">CHAPTER 04 // OUR METHOD</span>
+                <h2 className="font-headline-lg text-4xl md:text-5xl text-on-surface mb-2">
+                  Two Paths to
+                </h2>
+                <h2 className="font-headline-lg text-4xl md:text-5xl mb-6">
+                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-surface-tint text-glow-primary">Agentic Transformation</span>
+                </h2>
+                <p className="font-body-lg text-on-surface-variant text-lg md:text-xl leading-relaxed max-w-2xl mx-auto">
+                  Whether you orchestrate from the executive suite or automate from the ground up, our dual-axis methodology ensures seamless integration of AI workforces into your operational DNA.
+                </p>
               </div>
 
-              <span className="font-label-caps text-label-caps text-secondary tracking-widest block mb-4">CHAPTER 04 // OUR METHOD</span>
-              <h2 className="font-headline-lg text-4xl md:text-5xl text-on-surface mb-6">
-                The Aura Delivery System
-              </h2>
-              <p className="font-body-lg text-on-surface-variant text-lg md:text-xl leading-relaxed max-w-2xl mx-auto mb-12">
-                A repeatable, observable process for taking agentic systems from opportunity to production without the usual chaos.
-              </p>
+              {/* Two Path Cards */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
+                
+                {/* Path A: Strategic — Top-Down */}
+                <div className="reveal-layer rounded-3xl p-8 md:p-10 relative overflow-hidden" style={{ background: 'linear-gradient(135deg, rgba(255,255,255,0.95), rgba(250,245,230,0.95))', border: '1px solid rgba(197,160,89,0.25)', boxShadow: '0 20px 50px -15px rgba(140,111,45,0.12)' }}>
+                  {/* Icon */}
+                  <div className="w-14 h-14 rounded-2xl flex items-center justify-center mb-6" style={{ background: 'rgba(140,111,45,0.1)', border: '1px solid rgba(140,111,45,0.2)' }}>
+                    <span className="material-symbols-outlined text-primary text-3xl">account_tree</span>
+                  </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-4 text-left">
-                <div className="glass-panel p-5 rounded-xl">
-                  <div className="font-terminal-sm text-primary text-xs mb-2">01</div>
-                  <div className="font-headline-md text-lg text-on-surface mb-1">Discover</div>
-                  <p className="text-sm text-on-surface-variant">Map high-leverage workflows and define success metrics.</p>
+                  <span className="font-label-caps text-xs tracking-[0.2em] block mb-3" style={{ color: '#8c6f2d' }}>PATH A: STRATEGIC</span>
+                  <h3 className="font-headline-lg text-3xl md:text-4xl text-on-surface mb-4 leading-tight">
+                    Top-Down<br/>Transformation
+                  </h3>
+                  <p className="font-body-md text-on-surface-variant text-sm leading-relaxed mb-8">
+                    Driven by management consultation, this path identifies high-leverage job roles and orchestrates sweeping workflow optimizations across departments.
+                  </p>
+
+                  {/* Steps */}
+                  <div className="flex flex-col gap-4">
+                    <div className="flex items-center gap-4 rounded-xl px-5 py-4" style={{ background: 'rgba(140,111,45,0.06)', border: '1px solid rgba(140,111,45,0.1)' }}>
+                      <span className="material-symbols-outlined text-primary text-xl">work</span>
+                      <div>
+                        <span className="font-terminal-sm text-[10px] text-primary/70 uppercase tracking-[0.15em] block">Step 01</span>
+                        <span className="font-headline-md text-base text-on-surface">Job Mapping</span>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-4 rounded-xl px-5 py-4" style={{ background: 'rgba(140,111,45,0.06)', border: '1px solid rgba(140,111,45,0.1)' }}>
+                      <span className="material-symbols-outlined text-primary text-xl">trending_up</span>
+                      <div>
+                        <span className="font-terminal-sm text-[10px] text-primary/70 uppercase tracking-[0.15em] block">Step 02</span>
+                        <span className="font-headline-md text-base text-on-surface">ROI Analysis</span>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-4 rounded-xl px-5 py-4" style={{ background: 'rgba(140,111,45,0.06)', border: '1px solid rgba(140,111,45,0.1)' }}>
+                      <span className="material-symbols-outlined text-primary text-xl">groups</span>
+                      <div>
+                        <span className="font-terminal-sm text-[10px] text-primary/70 uppercase tracking-[0.15em] block">Step 03</span>
+                        <span className="font-headline-md text-base text-on-surface">Organizational Alignment</span>
+                      </div>
+                    </div>
+                  </div>
                 </div>
-                <div className="glass-panel p-5 rounded-xl">
-                  <div className="font-terminal-sm text-primary text-xs mb-2">02</div>
-                  <div className="font-headline-md text-lg text-on-surface mb-1">Architect</div>
-                  <p className="text-sm text-on-surface-variant">Design the multi-agent graph, tools, memory & guardrails.</p>
+
+                {/* Path B: Tactical — Bottom-Up */}
+                <div className="reveal-layer rounded-3xl p-8 md:p-10 relative overflow-hidden" style={{ background: 'linear-gradient(135deg, rgba(255,252,240,0.95), rgba(255,248,225,0.95))', border: '1px solid rgba(197,160,89,0.3)', boxShadow: '0 20px 50px -15px rgba(140,111,45,0.12)', transitionDelay: '0.15s' } as React.CSSProperties}>
+                  {/* Icon */}
+                  <div className="w-14 h-14 rounded-2xl flex items-center justify-center mb-6" style={{ background: 'rgba(197,160,89,0.15)', border: '1px solid rgba(197,160,89,0.25)' }}>
+                    <span className="material-symbols-outlined text-3xl" style={{ color: '#c5a059' }}>auto_awesome</span>
+                  </div>
+
+                  <span className="font-label-caps text-xs tracking-[0.2em] block mb-3" style={{ color: '#c5a059' }}>PATH B: TACTICAL</span>
+                  <h3 className="font-headline-lg text-3xl md:text-4xl text-on-surface mb-4 leading-tight">
+                    Bottom-Up<br/>Transformation
+                  </h3>
+                  <p className="font-body-md text-on-surface-variant text-sm leading-relaxed mb-8">
+                    Focusing on the granular level, this path analyzes individual recurring tasks and atomic actions that can be directly and immediately agentified.
+                  </p>
+
+                  {/* Steps */}
+                  <div className="flex flex-col gap-4">
+                    <div className="flex items-center gap-4 rounded-xl px-5 py-4" style={{ background: 'rgba(197,160,89,0.08)', border: '1px solid rgba(197,160,89,0.15)' }}>
+                      <span className="material-symbols-outlined text-xl" style={{ color: '#c5a059' }}>search_insights</span>
+                      <div>
+                        <span className="font-terminal-sm text-[10px] uppercase tracking-[0.15em] block" style={{ color: 'rgba(197,160,89,0.7)' }}>Step 01</span>
+                        <span className="font-headline-md text-base text-on-surface">Task Mining</span>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-4 rounded-xl px-5 py-4" style={{ background: 'rgba(197,160,89,0.08)', border: '1px solid rgba(197,160,89,0.15)' }}>
+                      <span className="material-symbols-outlined text-xl" style={{ color: '#c5a059' }}>integration_instructions</span>
+                      <div>
+                        <span className="font-terminal-sm text-[10px] uppercase tracking-[0.15em] block" style={{ color: 'rgba(197,160,89,0.7)' }}>Step 02</span>
+                        <span className="font-headline-md text-base text-on-surface">Tool Integration</span>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-4 rounded-xl px-5 py-4" style={{ background: 'rgba(197,160,89,0.08)', border: '1px solid rgba(197,160,89,0.15)' }}>
+                      <span className="material-symbols-outlined text-xl" style={{ color: '#c5a059' }}>rocket_launch</span>
+                      <div>
+                        <span className="font-terminal-sm text-[10px] uppercase tracking-[0.15em] block" style={{ color: 'rgba(197,160,89,0.7)' }}>Step 03</span>
+                        <span className="font-headline-md text-base text-on-surface">Rapid Prototyping</span>
+                      </div>
+                    </div>
+                  </div>
                 </div>
-                <div className="glass-panel p-5 rounded-xl">
-                  <div className="font-terminal-sm text-primary text-xs mb-2">03</div>
-                  <div className="font-headline-md text-lg text-on-surface mb-1">Build & Eval</div>
-                  <p className="text-sm text-on-surface-variant">Rapid iteration with continuous evaluation harnesses.</p>
-                </div>
-                <div className="glass-panel p-5 rounded-xl">
-                  <div className="font-terminal-sm text-primary text-xs mb-2">04</div>
-                  <div className="font-headline-md text-lg text-on-surface mb-1">Deploy & Scale</div>
-                  <p className="text-sm text-on-surface-variant">Production hardening, monitoring, and team hand-off.</p>
-                </div>
+
               </div>
             </div>
           </section>
