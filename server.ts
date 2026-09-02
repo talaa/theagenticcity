@@ -1,10 +1,15 @@
 import express from 'express';
 import path from 'path';
+import fs from 'fs';
 import { createServer as createViteServer } from 'vite';
 
 async function startServer() {
   const app = express();
-  const PORT = process.env.PORT ? parseInt(process.env.PORT, 10) : 3001;
+  const PORT = process.env.PORT ? parseInt(process.env.PORT, 10) : 5000;
+  const isProduction =
+    process.env.NODE_ENV === 'production' ||
+    (process.env.NODE_ENV !== 'development' &&
+      fs.existsSync(path.join(process.cwd(), 'dist', 'index.html')));
 
   // Middleware to parse JSON
   app.use(express.json());
@@ -35,8 +40,8 @@ async function startServer() {
     res.json({ status: "ok", service: "mock-express-backend" });
   });
 
-  // Vite middleware for development
-  if (process.env.NODE_ENV !== 'production') {
+  // Vite middleware for development vs static files for production
+  if (!isProduction) {
     const vite = await createViteServer({
       server: { middlewareMode: true },
       appType: 'spa',
@@ -51,7 +56,7 @@ async function startServer() {
   }
 
   app.listen(PORT, '0.0.0.0', () => {
-    console.log(`Server running on http://localhost:${PORT}`);
+    console.log(`Server running on http://0.0.0.0:${PORT} (Mode: ${isProduction ? 'production' : 'development'})`);
   });
 }
 
