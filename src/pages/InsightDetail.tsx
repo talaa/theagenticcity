@@ -1,12 +1,42 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { MarkdownRenderer } from '../components/MarkdownRenderer';
 import { PageMeta } from '../components/PageMeta';
 import { getInsightBySlug } from '../lib/insights';
+import {
+  trackInsightArticleRead,
+  trackInsightInfographicExpanded,
+  trackLinkedinDiscussionClicked,
+  trackStrategyCallCtaClicked,
+} from '../lib/analytics';
 
 export function InsightDetail() {
   const { slug } = useParams<{ slug: string }>();
   const entry = slug ? getInsightBySlug(slug) : null;
+  const trackedDepthsRef = useRef<Set<number>>(new Set());
+
+  // Scroll depth tracking
+  useEffect(() => {
+    if (!entry) return;
+
+    const handleScroll = () => {
+      const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+      if (docHeight <= 0) return;
+
+      const scrollPercent = (window.scrollY / docHeight) * 100;
+      const thresholds = [25, 50, 75, 100];
+
+      thresholds.forEach((th) => {
+        if (scrollPercent >= th && !trackedDepthsRef.current.has(th)) {
+          trackedDepthsRef.current.add(th);
+          trackInsightArticleRead(entry.slug, th, entry.readingTimeMinutes);
+        }
+      });
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [entry]);
 
   // Reveal animation observer
   useEffect(() => {
@@ -225,6 +255,7 @@ export function InsightDetail() {
                   href={entry.infographicImage}
                   target="_blank"
                   rel="noopener noreferrer"
+                  onClick={() => trackInsightInfographicExpanded(entry.slug, entry.infographicImage || '')}
                   className="font-terminal-sm text-xs text-primary hover:underline flex items-center gap-1"
                 >
                   <span>VIEW FULL RESOLUTION</span>
@@ -265,6 +296,7 @@ export function InsightDetail() {
               href={entry.linkedinDiscussionUrl}
               target="_blank"
               rel="noopener noreferrer"
+              onClick={() => trackLinkedinDiscussionClicked(entry.slug, entry.linkedinDiscussionUrl || '')}
               className="glass-panel p-6 md:p-8 rounded-3xl border border-primary/20 hover:border-primary/60 transition-all group flex flex-col md:flex-row items-start md:items-center justify-between gap-4"
             >
               <div className="flex items-center gap-4">
@@ -300,6 +332,7 @@ export function InsightDetail() {
             </p>
             <Link
               to="/#contact"
+              onClick={() => trackStrategyCallCtaClicked('insight_bottom', 'BOOK A STRATEGY CALL')}
               className="inline-flex items-center gap-3 px-8 py-4 bg-secondary text-on-secondary font-label-caps text-label-caps rounded-full hover:shadow-[0_0_25px_rgba(254,183,0,0.4)] transition-all"
             >
               <span>BOOK A STRATEGY CALL</span>

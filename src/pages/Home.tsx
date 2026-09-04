@@ -1,14 +1,93 @@
-import { useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import chapter2Bg from '../assets/chapter2_bg.jpg';
 import { PageMeta } from '../components/PageMeta';
+import {
+  trackStrategyCallCtaClicked,
+  trackStrategyCallFormStarted,
+  trackStrategyCallSubmitted,
+  trackStrategyCallFailed,
+  trackChapterViewed,
+  trackCaseStudyCardClicked,
+} from '../lib/analytics';
 
 export function Home() {
+  const [formData, setFormData] = useState({ name: '', email: '', description: '' });
+  const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
+  const [errorMessage, setErrorMessage] = useState('');
+  const formStartedRef = useRef(false);
+  const trackedChaptersRef = useRef<Set<string>>(new Set());
+
+  const handleFormFieldFocus = (fieldName: string) => {
+    if (!formStartedRef.current) {
+      formStartedRef.current = true;
+      trackStrategyCallFormStarted(fieldName);
+    }
+  };
+
+  const handleStrategyCallSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setStatus('loading');
+    setErrorMessage('');
+
+    try {
+      const res = await fetch('/api/strategy-call', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          name: formData.name,
+          email: formData.email,
+          description: formData.description,
+          source: 'Homepage Strategy Call Form',
+        }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.detail || 'Failed to submit request.');
+      }
+
+      trackStrategyCallSubmitted({
+        name: formData.name,
+        email: formData.email,
+        hasDescription: Boolean(formData.description?.trim()),
+        descriptionLength: formData.description?.trim().length || 0,
+        source: 'Homepage Strategy Call Form',
+      });
+
+      setStatus('success');
+      formStartedRef.current = false;
+      setFormData({ name: '', email: '', description: '' });
+    } catch (err: any) {
+      console.error('Error submitting strategy call:', err);
+      const msg = err.message || 'Something went wrong while connecting to Airtable.';
+      trackStrategyCallFailed(msg);
+      setStatus('error');
+      setErrorMessage(msg);
+    }
+  };
+
   useEffect(() => {
+    const chapterTitles: Record<string, string> = {
+      hero: 'Chapter 01 // Hero',
+      services: 'Chapter 02 // Capabilities',
+      work: 'Chapter 03 // Selected Work',
+      method: 'Chapter 04 // Our Method',
+      contact: 'Chapter 05 // The Atrium Contact',
+    };
+
     const observer = new IntersectionObserver((entries) => {
       entries.forEach(entry => {
         if (entry.isIntersecting) {
           entry.target.classList.add('is-revealed');
+          const sectionId = entry.target.id;
+          if (sectionId && !trackedChaptersRef.current.has(sectionId)) {
+            trackedChaptersRef.current.add(sectionId);
+            trackChapterViewed(sectionId, chapterTitles[sectionId] || sectionId);
+          }
         }
       });
     }, { threshold: 0.15 });
@@ -60,11 +139,26 @@ export function Home() {
                 </p>
 
                 <div className="flex flex-col sm:flex-row gap-4 relative z-20">
-                  <a href="#contact" onClick={(e) => { e.preventDefault(); document.getElementById('contact')?.scrollIntoView({ behavior: 'smooth' }); }} className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-primary text-on-primary font-label-caps text-label-caps rounded-full hover:shadow-[0_0_25px_rgba(0,240,255,0.45)] transition-all">
+                  <a
+                    href="#contact"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      trackStrategyCallCtaClicked('hero', 'BOOK STRATEGY CALL');
+                      document.getElementById('contact')?.scrollIntoView({ behavior: 'smooth' });
+                    }}
+                    className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-primary text-on-primary font-label-caps text-label-caps rounded-full hover:shadow-[0_0_25px_rgba(0,240,255,0.45)] transition-all"
+                  >
                     BOOK STRATEGY CALL
                     <span className="material-symbols-outlined text-[18px]">arrow_forward</span>
                   </a>
-                  <a href="#work" onClick={(e) => { e.preventDefault(); document.getElementById('work')?.scrollIntoView({ behavior: 'smooth' }); }} className="inline-flex items-center justify-center gap-2 px-8 py-4 border border-glass-border text-on-surface font-label-caps text-label-caps rounded-full hover:bg-white/5 transition-all">
+                  <a
+                    href="#work"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      document.getElementById('work')?.scrollIntoView({ behavior: 'smooth' });
+                    }}
+                    className="inline-flex items-center justify-center gap-2 px-8 py-4 border border-glass-border text-on-surface font-label-caps text-label-caps rounded-full hover:bg-white/5 transition-all"
+                  >
                     VIEW SELECTED WORK
                   </a>
                 </div>
@@ -208,7 +302,15 @@ export function Home() {
                   <p className="font-body-md text-on-surface-variant mb-8">
                     Real agentic products and infrastructure built for production environments — not demos.
                   </p>
-                  <a href="#contact" onClick={(e) => { e.preventDefault(); document.getElementById('contact')?.scrollIntoView({ behavior: 'smooth' }); }} className="inline-flex items-center gap-2 text-primary font-label-caps text-label-caps hover:gap-3 transition-all relative z-20">
+                  <a
+                    href="#contact"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      trackStrategyCallCtaClicked('chapter_03', 'DISCUSS A SIMILAR BUILD');
+                      document.getElementById('contact')?.scrollIntoView({ behavior: 'smooth' });
+                    }}
+                    className="inline-flex items-center gap-2 text-primary font-label-caps text-label-caps hover:gap-3 transition-all relative z-20"
+                  >
                     DISCUSS A SIMILAR BUILD
                     <span className="material-symbols-outlined text-[18px]">arrow_forward</span>
                   </a>
@@ -218,6 +320,7 @@ export function Home() {
                   {/* Case 1 - Text2Clip Link */}
                   <Link
                     to="/work/text2clip"
+                    onClick={() => trackCaseStudyCardClicked('text2clip', 'Text2Clip')}
                     className="glass-panel p-8 rounded-2xl reveal-layer group hover:border-primary/50 hover:bg-white/10 transition-all flex flex-col justify-between block relative overflow-hidden"
                   >
                     <div>
@@ -245,6 +348,7 @@ export function Home() {
                   {/* Case 2 - OVI AI Voice Link */}
                   <Link
                     to="/work/ovi"
+                    onClick={() => trackCaseStudyCardClicked('ovi', 'OVI AI Voice')}
                     className="glass-panel p-8 rounded-2xl reveal-layer group hover:border-secondary/50 hover:bg-white/10 transition-all flex flex-col justify-between block relative overflow-hidden"
                     style={{ transitionDelay: '0.1s' }}
                   >
@@ -455,24 +559,94 @@ export function Home() {
                         <h3 className="font-headline-md text-xl text-on-surface">Request a Strategy Call</h3>
                       </div>
 
-                      <form className="flex flex-col gap-5 relative z-20" onSubmit={e => { e.preventDefault(); alert('Form submitted — connect this to your backend or Cal.com / Typeform.'); }}>
-                        <div className="flex flex-col gap-1.5">
-                          <label className="font-terminal-sm text-xs text-on-surface-variant uppercase tracking-wider">Name</label>
-                          <input className="bg-transparent border-b border-glass-border py-3 text-on-surface focus:outline-none focus:border-secondary transition-colors font-body-md placeholder:text-on-surface-variant/40" placeholder="Alex Rivera" type="text" required />
+                      {status === 'success' ? (
+                        <div className="flex flex-col items-center text-center py-6 px-2 gap-4 animate-in fade-in zoom-in duration-300">
+                          <div className="w-16 h-16 rounded-full bg-secondary/15 flex items-center justify-center text-secondary border border-secondary/30 shadow-[0_0_25px_rgba(197,160,89,0.3)]">
+                            <span className="material-symbols-outlined text-3xl">task_alt</span>
+                          </div>
+                          <div className="flex flex-col gap-1.5">
+                            <h4 className="font-headline-md text-lg text-on-surface">Transmission Received</h4>
+                            <p className="font-body-md text-sm text-on-surface-variant max-w-xs">
+                              Your request has been logged in our system. We’ll review your stack requirements and reach out within one business day.
+                            </p>
+                          </div>
+                          <button
+                            type="button"
+                            onClick={() => setStatus('idle')}
+                            className="mt-4 text-xs font-terminal-sm text-secondary hover:underline cursor-pointer tracking-wider uppercase"
+                          >
+                            Send another inquiry
+                          </button>
                         </div>
-                        <div className="flex flex-col gap-1.5">
-                          <label className="font-terminal-sm text-xs text-on-surface-variant uppercase tracking-wider">Work Email</label>
-                          <input className="bg-transparent border-b border-glass-border py-3 text-on-surface focus:outline-none focus:border-secondary transition-colors font-body-md placeholder:text-on-surface-variant/40" placeholder="alex@company.com" type="email" required />
-                        </div>
-                        <div className="flex flex-col gap-1.5">
-                          <label className="font-terminal-sm text-xs text-on-surface-variant uppercase tracking-wider">What are you looking to build?</label>
-                          <textarea className="bg-transparent border-b border-glass-border py-3 text-on-surface focus:outline-none focus:border-secondary transition-colors font-body-md placeholder:text-on-surface-variant/40 resize-none" rows={3} placeholder="e.g. Research agents + internal knowledge system"></textarea>
-                        </div>
-                        <button type="submit" className="w-full mt-2 bg-secondary text-on-secondary font-label-caps py-4 rounded-xl hover:shadow-[0_0_25px_rgba(197,160,89,0.35)] transition-all flex justify-center items-center gap-2 group cursor-pointer">
-                          <span>BOOK STRATEGY CALL</span>
-                          <span className="material-symbols-outlined group-hover:translate-x-1 transition-transform">arrow_right_alt</span>
-                        </button>
-                      </form>
+                      ) : (
+                        <form className="flex flex-col gap-5 relative z-20" onSubmit={handleStrategyCallSubmit}>
+                          {status === 'error' && (
+                            <div className="p-3.5 rounded-xl bg-error/10 border border-error/30 text-error text-xs font-body-md flex items-start gap-2.5">
+                              <span className="material-symbols-outlined text-[18px] shrink-0 mt-0.5">error</span>
+                              <span>{errorMessage || 'Failed to submit. Please check your network or credentials.'}</span>
+                            </div>
+                          )}
+
+                          <div className="flex flex-col gap-1.5">
+                            <label className="font-terminal-sm text-xs text-on-surface-variant uppercase tracking-wider">Name</label>
+                            <input
+                              className="bg-transparent border-b border-glass-border py-3 text-on-surface focus:outline-none focus:border-secondary transition-colors font-body-md placeholder:text-on-surface-variant/40"
+                              placeholder="Alex Rivera"
+                              type="text"
+                              required
+                              value={formData.name}
+                              onFocus={() => handleFormFieldFocus('name')}
+                              onChange={e => setFormData(prev => ({ ...prev, name: e.target.value }))}
+                              disabled={status === 'loading'}
+                            />
+                          </div>
+
+                          <div className="flex flex-col gap-1.5">
+                            <label className="font-terminal-sm text-xs text-on-surface-variant uppercase tracking-wider">Work Email</label>
+                            <input
+                              className="bg-transparent border-b border-glass-border py-3 text-on-surface focus:outline-none focus:border-secondary transition-colors font-body-md placeholder:text-on-surface-variant/40"
+                              placeholder="alex@company.com"
+                              type="email"
+                              required
+                              value={formData.email}
+                              onFocus={() => handleFormFieldFocus('email')}
+                              onChange={e => setFormData(prev => ({ ...prev, email: e.target.value }))}
+                              disabled={status === 'loading'}
+                            />
+                          </div>
+
+                          <div className="flex flex-col gap-1.5">
+                            <label className="font-terminal-sm text-xs text-on-surface-variant uppercase tracking-wider">What are you looking to build?</label>
+                            <textarea
+                              className="bg-transparent border-b border-glass-border py-3 text-on-surface focus:outline-none focus:border-secondary transition-colors font-body-md placeholder:text-on-surface-variant/40 resize-none"
+                              rows={3}
+                              placeholder="e.g. Research agents + internal knowledge system"
+                              value={formData.description}
+                              onFocus={() => handleFormFieldFocus('description')}
+                              onChange={e => setFormData(prev => ({ ...prev, description: e.target.value }))}
+                              disabled={status === 'loading'}
+                            ></textarea>
+                          </div>
+
+                          <button
+                            type="submit"
+                            disabled={status === 'loading'}
+                            className="w-full mt-2 bg-secondary text-on-secondary font-label-caps py-4 rounded-xl hover:shadow-[0_0_25px_rgba(197,160,89,0.35)] transition-all flex justify-center items-center gap-2 group cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
+                          >
+                            {status === 'loading' ? (
+                              <>
+                                <span className="material-symbols-outlined animate-spin text-[20px]">progress_activity</span>
+                                <span>TRANSMITTING...</span>
+                              </>
+                            ) : (
+                              <>
+                                <span>BOOK STRATEGY CALL</span>
+                                <span className="material-symbols-outlined group-hover:translate-x-1 transition-transform">arrow_right_alt</span>
+                              </>
+                            )}
+                          </button>
+                        </form>
+                      )}
                     </div>
                   </div>
                 </div>

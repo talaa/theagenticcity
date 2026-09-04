@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { PageMeta } from '../components/PageMeta';
 import { getAllInsights } from '../lib/insights';
 import { InsightType } from '../types/insight';
+import { trackInsightsFilterChanged, trackInsightsTagClicked } from '../lib/analytics';
 
 export function InsightsIndex() {
   const allInsights = useMemo(() => getAllInsights(), []);
@@ -26,6 +27,29 @@ export function InsightsIndex() {
       return typeMatches && tagMatches;
     });
   }, [allInsights, selectedType, selectedTag]);
+
+  const handleTypeChange = (type: InsightType | 'all') => {
+    const count = type === 'all' ? allInsights.length : allInsights.filter((i) => i.type === type).length;
+    trackInsightsFilterChanged(type, count);
+    setSelectedType(type);
+  };
+
+  const handleTagToggle = (tag: string) => {
+    if (selectedTag === tag) {
+      trackInsightsTagClicked(tag, 'clear');
+      setSelectedTag(null);
+    } else {
+      trackInsightsTagClicked(tag, 'select');
+      setSelectedTag(tag);
+    }
+  };
+
+  const handleClearTag = () => {
+    if (selectedTag) {
+      trackInsightsTagClicked(selectedTag, 'clear');
+      setSelectedTag(null);
+    }
+  };
 
   // Setup scroll reveal animation observer
   useEffect(() => {
@@ -92,7 +116,7 @@ export function InsightsIndex() {
             <div className="flex flex-wrap items-center gap-2">
               <span className="font-terminal-sm text-xs text-on-surface-variant mr-2 uppercase">TYPE:</span>
               <button
-                onClick={() => setSelectedType('all')}
+                onClick={() => handleTypeChange('all')}
                 className={`px-4 py-2 rounded-full font-terminal-sm text-xs transition-all border ${
                   selectedType === 'all'
                     ? 'bg-primary text-on-primary-fixed font-bold border-primary shadow-[0_0_15px_rgba(197,160,89,0.3)]'
@@ -107,7 +131,7 @@ export function InsightsIndex() {
                 return (
                   <button
                     key={type}
-                    onClick={() => setSelectedType(type)}
+                    onClick={() => handleTypeChange(type)}
                     className={`px-4 py-2 rounded-full font-terminal-sm text-xs transition-all flex items-center gap-1.5 border ${
                       selectedType === type
                         ? 'bg-primary text-on-primary-fixed font-bold border-primary shadow-[0_0_15px_rgba(197,160,89,0.3)]'
@@ -128,7 +152,7 @@ export function InsightsIndex() {
                 <span className="font-terminal-sm text-xs text-on-surface-variant mr-1 uppercase">TAGS:</span>
                 {selectedTag && (
                   <button
-                    onClick={() => setSelectedTag(null)}
+                    onClick={handleClearTag}
                     className="px-2.5 py-1 rounded-md bg-secondary/20 text-secondary border border-secondary/40 font-terminal-sm text-[11px] flex items-center gap-1 hover:bg-secondary/30"
                   >
                     <span>CLEAR TAG</span>
@@ -138,7 +162,7 @@ export function InsightsIndex() {
                 {allTags.map((tag) => (
                   <button
                     key={tag}
-                    onClick={() => setSelectedTag(selectedTag === tag ? null : tag)}
+                    onClick={() => handleTagToggle(tag)}
                     className={`px-3 py-1 rounded-full font-terminal-sm text-[11px] border transition-colors ${
                       selectedTag === tag
                         ? 'bg-primary/20 text-primary border-primary'

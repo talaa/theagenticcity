@@ -2,6 +2,14 @@ import React, { useState, useEffect, useRef } from 'react';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
 import { PageMeta } from '../components/PageMeta';
+import {
+  trackCanvasViewed,
+  trackCanvasTabSwitched,
+  trackCanvasFieldEdited,
+  trackCanvasCleared,
+  trackCanvasPdfExportClicked,
+  trackCanvasPdfExportCompleted,
+} from '../lib/analytics';
 
 const getTodayDate = () => new Date().toISOString().split('T')[0];
 
@@ -78,17 +86,25 @@ export function AgentCanvasTool() {
     testing: '',
   });
 
-  // Load saved state on mount
+  // Load saved state on mount and track canvas_viewed
   useEffect(() => {
+    let hasCached = false;
     try {
       const savedAgent = localStorage.getItem('agentic_city_agent_canvas');
-      if (savedAgent) setAgentData(JSON.parse(savedAgent));
+      if (savedAgent) {
+        setAgentData(JSON.parse(savedAgent));
+        hasCached = true;
+      }
 
       const savedSkill = localStorage.getItem('agentic_city_skill_canvas');
-      if (savedSkill) setSkillData(JSON.parse(savedSkill));
+      if (savedSkill) {
+        setSkillData(JSON.parse(savedSkill));
+        hasCached = true;
+      }
     } catch (err) {
       console.warn('Could not load canvas state from localStorage', err);
     }
+    trackCanvasViewed('agent', hasCached);
   }, []);
 
   // Save agent state on change
@@ -114,8 +130,20 @@ export function AgentCanvasTool() {
     setTimeout(() => setToastMessage(null), 3500);
   };
 
+  const countFilledFields = () => {
+    if (activeTab === 'agent') {
+      return Object.values(agentData).filter((v) => Boolean(v && v.trim())).length;
+    } else {
+      return Object.values(skillData).filter((v) => Boolean(v && v.trim())).length;
+    }
+  };
+
   const handleExportPDF = async () => {
     if (!printRef.current) return;
+    const filledCount = countFilledFields();
+    trackCanvasPdfExportClicked(activeTab, filledCount);
+    const startTime = performance.now();
+
     try {
       setIsExporting(true);
       showToast('Generating PDF...');
@@ -156,6 +184,8 @@ export function AgentCanvasTool() {
 
       const fileName = activeTab === 'agent' ? 'Agent_Definition_Canvas.pdf' : 'Skill_Definition_Canvas.pdf';
       pdf.save(fileName);
+      const durationMs = performance.now() - startTime;
+      trackCanvasPdfExportCompleted(activeTab, totalPages, durationMs);
       showToast(`PDF downloaded (${totalPages} page${totalPages > 1 ? 's' : ''})!`);
     } catch (err) {
       console.error('PDF export failed', err);
@@ -170,6 +200,7 @@ export function AgentCanvasTool() {
   };
 
   const executeClear = () => {
+    trackCanvasCleared(activeTab);
     if (activeTab === 'agent') {
       setAgentData({
         agentName: '',
@@ -210,11 +241,28 @@ export function AgentCanvasTool() {
   };
 
   const updateAgentField = (field: keyof AgentState, val: string) => {
-    setAgentData((prev) => ({ ...prev, [field]: val }));
+    setAgentData((prev) => {
+      const next = { ...prev, [field]: val };
+      const filled = Object.values(next).filter((v) => Boolean(v && v.trim())).length;
+      trackCanvasFieldEdited('agent', field, filled);
+      return next;
+    });
   };
 
   const updateSkillField = (field: keyof SkillState, val: string) => {
-    setSkillData((prev) => ({ ...prev, [field]: val }));
+    setSkillData((prev) => {
+      const next = { ...prev, [field]: val };
+      const filled = Object.values(next).filter((v) => Boolean(v && v.trim())).length;
+      trackCanvasFieldEdited('skill', field, filled);
+      return next;
+    });
+  };
+
+  const handleTabSwitch = (newTab: 'agent' | 'skill') => {
+    if (newTab !== activeTab) {
+      trackCanvasTabSwitched(activeTab, newTab);
+      setActiveTab(newTab);
+    }
   };
 
   return (
@@ -275,7 +323,7 @@ export function AgentCanvasTool() {
               {/* Tab Selector */}
               <div className="flex p-1 rounded-xl bg-surface-container border border-glass-border">
                 <button
-                  onClick={() => setActiveTab('agent')}
+                  onClick={() => handleTabSwitch('agent')}
                   className={`px-4 py-2 rounded-lg font-label-caps text-xs flex items-center gap-2 transition-all cursor-pointer ${
                     activeTab === 'agent'
                       ? 'bg-primary text-on-primary font-bold shadow-[0_0_15px_rgba(197,160,89,0.3)]'
@@ -286,7 +334,7 @@ export function AgentCanvasTool() {
                   Agent Canvas
                 </button>
                 <button
-                  onClick={() => setActiveTab('skill')}
+                  onClick={() => handleTabSwitch('skill')}
                   className={`px-4 py-2 rounded-lg font-label-caps text-xs flex items-center gap-2 transition-all cursor-pointer ${
                     activeTab === 'skill'
                       ? 'bg-secondary text-on-secondary font-bold shadow-[0_0_15px_rgba(197,160,89,0.3)]'

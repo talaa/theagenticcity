@@ -7,6 +7,7 @@ import { Ovi } from './pages/Ovi';
 import { AgentCanvasTool } from './pages/AgentCanvasTool';
 import { InsightsIndex } from './pages/InsightsIndex';
 import { InsightDetail } from './pages/InsightDetail';
+import { IdeasLab } from './pages/IdeasLab';
 
 export default function App() {
   return (
@@ -20,6 +21,7 @@ export default function App() {
           <Route path="tools/agent-canvas" element={<AgentCanvasTool />} />
           <Route path="insights" element={<InsightsIndex />} />
           <Route path="insights/:slug" element={<InsightDetail />} />
+          <Route path="lab/ideas" element={<IdeasLab />} />
         </Route>
       </Routes>
     </>

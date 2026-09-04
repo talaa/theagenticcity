@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { AgentDrone } from './AgentDrone';
+import { trackStrategyCallCtaClicked, trackEmailContactClicked } from '../lib/analytics';
 
 export function Layout() {
   const location = useLocation();
@@ -102,7 +103,10 @@ export function Layout() {
           <div className="flex items-center gap-4">
             <a
               href="#contact"
-              onClick={(e) => handleAnchorClick(e, '#contact')}
+              onClick={(e) => {
+                trackStrategyCallCtaClicked('header', 'BOOK STRATEGY CALL');
+                handleAnchorClick(e, '#contact');
+              }}
               className="hidden sm:inline-flex bg-secondary text-on-secondary px-6 py-2.5 rounded-full font-label-caps text-label-caps hover:shadow-[0_0_20px_rgba(197,160,89,0.4)] transition-all cursor-pointer shadow-md"
             >
               BOOK STRATEGY CALL
@@ -164,9 +168,20 @@ export function Layout() {
               <span className="material-symbols-outlined text-[18px] text-primary">build</span>
               AGENT & SKILLS CANVAS TOOL
             </Link>
+            <Link
+              to="/lab/ideas"
+              onClick={() => setMobileMenuOpen(false)}
+              className="font-label-caps text-label-caps text-on-surface-variant py-2 flex items-center gap-2 border-b border-glass-border/50"
+            >
+              <span className="material-symbols-outlined text-[18px]">science</span>
+              COMMUNITY IDEAS LAB
+            </Link>
             <a
               href="#contact"
-              onClick={(e) => handleAnchorClick(e, '#contact')}
+              onClick={(e) => {
+                trackStrategyCallCtaClicked('mobile_menu', 'BOOK STRATEGY CALL');
+                handleAnchorClick(e, '#contact');
+              }}
               className="inline-flex justify-center items-center bg-secondary text-on-secondary px-6 py-3 rounded-full font-label-caps text-label-caps mt-2 shadow-md"
             >
               BOOK STRATEGY CALL
@@ -188,7 +203,21 @@ export function Layout() {
             <span className="font-terminal-sm text-terminal-sm text-on-surface-variant">© 2025 AGENTIC CITY. ALL RIGHTS RESERVED.</span>
           </div>
           <div className="flex items-center gap-6 relative z-20">
-            <a className="text-on-surface-variant hover:text-primary transition-colors cursor-pointer" href="mailto:contact@agenticcity.ai" aria-label="Email Us"><span className="material-symbols-outlined">mail</span></a>
+            <Link
+              to="/lab/ideas"
+              className="font-terminal-sm text-xs text-on-surface-variant hover:text-primary transition-colors flex items-center gap-1.5"
+            >
+              <span className="material-symbols-outlined text-[15px]">science</span>
+              <span>Community Lab</span>
+            </Link>
+            <a
+              className="text-on-surface-variant hover:text-primary transition-colors cursor-pointer"
+              href="mailto:contact@agenticcity.ai"
+              onClick={() => trackEmailContactClicked('footer')}
+              aria-label="Email Us"
+            >
+              <span className="material-symbols-outlined">mail</span>
+            </a>
             <a className="text-on-surface-variant hover:text-primary transition-colors cursor-pointer" href="#" aria-label="Website"><span className="material-symbols-outlined">public</span></a>
             <a className="text-on-surface-variant hover:text-primary transition-colors cursor-pointer" href="#" aria-label="Social Handle"><span className="material-symbols-outlined">alternate_email</span></a>
           </div>

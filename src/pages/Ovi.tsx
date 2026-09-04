@@ -1,9 +1,12 @@
 import { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { PageMeta } from '../components/PageMeta';
+import { trackCaseStudyViewed, trackStrategyCallCtaClicked } from '../lib/analytics';
 
 export function Ovi() {
   useEffect(() => {
+    trackCaseStudyViewed('OVI AI Voice');
+
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
@@ -156,6 +159,7 @@ export function Ovi() {
             </p>
             <Link
               to="/#contact"
+              onClick={() => trackStrategyCallCtaClicked('case_study_ovi', 'BOOK A STRATEGY CALL ABOUT A SIMILAR BUILD')}
               className="inline-flex items-center gap-3 px-8 py-4 bg-secondary text-on-secondary font-label-caps text-label-caps rounded-full hover:shadow-[0_0_25px_rgba(254,183,0,0.4)] transition-all"
             >
               <span>BOOK A STRATEGY CALL ABOUT A SIMILAR BUILD</span>
