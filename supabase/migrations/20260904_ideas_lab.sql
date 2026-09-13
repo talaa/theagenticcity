@@ -18,7 +18,17 @@ create table if not exists ideas (
   created_at timestamptz not null default now()
 );
 
--- 2. Idea Supports (Soft-fingerprint deduplication) Table
+-- 2. Strategy Calls Leads Table
+create table if not exists strategy_calls (
+  id uuid primary key default gen_random_uuid(),
+  name text not null,
+  email text not null,
+  description text,
+  source text default 'Homepage Strategy Call Form',
+  created_at timestamptz not null default now()
+);
+
+-- 3. Idea Supports (Soft-fingerprint deduplication) Table
 create table if not exists idea_supports (
   id uuid primary key default gen_random_uuid(),
   idea_id uuid not null references ideas(id) on delete cascade,
@@ -98,11 +108,18 @@ $$;
 -- 6. Row-Level Security (RLS) Setup
 alter table ideas enable row level security;
 alter table idea_supports enable row level security;
+alter table strategy_calls enable row level security;
 
 -- Drop existing policies if re-running
 drop policy if exists "Public can view approved ideas" on ideas;
 drop policy if exists "Public can submit pending ideas" on ideas;
 drop policy if exists "Public can insert supports" on idea_supports;
+drop policy if exists "Public can insert strategy calls" on strategy_calls;
+
+-- Strategy Calls policy:
+create policy "Public can insert strategy calls"
+  on strategy_calls for insert
+  with check (true);
 
 -- Ideas policies:
 -- Only approved ideas can be read anonymously

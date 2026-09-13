@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import chapter2Bg from '../assets/chapter2_bg.jpg';
 import { PageMeta } from '../components/PageMeta';
+import { submitStrategyCallLead } from '../lib/leadsApi';
 import {
   trackStrategyCallCtaClicked,
   trackStrategyCallFormStarted,
@@ -31,23 +32,15 @@ export function Home() {
     setErrorMessage('');
 
     try {
-      const res = await fetch('/api/strategy-call', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          name: formData.name,
-          email: formData.email,
-          description: formData.description,
-          source: 'Homepage Strategy Call Form',
-        }),
+      const result = await submitStrategyCallLead({
+        name: formData.name,
+        email: formData.email,
+        description: formData.description,
+        source: 'Homepage Strategy Call Form',
       });
 
-      const data = await res.json();
-
-      if (!res.ok) {
-        throw new Error(data.detail || 'Failed to submit request.');
+      if (!result.success) {
+        throw new Error('Failed to submit request.');
       }
 
       trackStrategyCallSubmitted({
@@ -63,7 +56,7 @@ export function Home() {
       setFormData({ name: '', email: '', description: '' });
     } catch (err: any) {
       console.error('Error submitting strategy call:', err);
-      const msg = err.message || 'Something went wrong while connecting to Airtable.';
+      const msg = err.message || 'Something went wrong while submitting request.';
       trackStrategyCallFailed(msg);
       setStatus('error');
       setErrorMessage(msg);
