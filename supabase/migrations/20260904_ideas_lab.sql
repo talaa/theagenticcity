@@ -105,6 +105,99 @@ begin
 end;
 $$;
 
+-- 5b. Admin RPC Functions
+create or replace function admin_create_idea(
+  p_title text,
+  p_pitch text,
+  p_architecture_blueprint text,
+  p_category text,
+  p_stage text default 'concept',
+  p_support_goal integer default 100,
+  p_support_count integer default 0,
+  p_creator_handle text default null,
+  p_creator_email text default 'admin@agenticcity.ai',
+  p_status text default 'approved'
+)
+returns json
+language plpgsql
+security definer
+as $$
+declare
+  v_new_id uuid;
+begin
+  insert into ideas (
+    title, pitch, architecture_blueprint, category, stage,
+    support_goal, support_count, creator_handle, creator_email, status
+  )
+  values (
+    p_title, p_pitch, p_architecture_blueprint, p_category, p_stage,
+    p_support_goal, p_support_count, p_creator_handle, p_creator_email, p_status
+  )
+  returning id into v_new_id;
+
+  return json_build_object('success', true, 'id', v_new_id);
+end;
+$$;
+
+create or replace function admin_update_idea_status(
+  p_idea_id uuid,
+  p_status text
+)
+returns json
+language plpgsql
+security definer
+as $$
+begin
+  update ideas
+  set status = p_status
+  where id = p_idea_id;
+
+  return json_build_object('success', true, 'id', p_idea_id, 'status', p_status);
+end;
+$$;
+
+create or replace function admin_delete_idea(
+  p_idea_id uuid
+)
+returns json
+language plpgsql
+security definer
+as $$
+begin
+  delete from ideas where id = p_idea_id;
+  return json_build_object('success', true, 'id', p_idea_id);
+end;
+$$;
+
+create or replace function admin_get_all_ideas()
+returns table (
+  id uuid,
+  title text,
+  pitch text,
+  architecture_blueprint text,
+  category text,
+  stage text,
+  support_goal integer,
+  support_count integer,
+  creator_handle text,
+  creator_email text,
+  status text,
+  created_at timestamptz
+)
+language plpgsql
+security definer
+as $$
+begin
+  return query
+  select
+    i.id, i.title, i.pitch, i.architecture_blueprint, i.category, i.stage,
+    i.support_goal, i.support_count, i.creator_handle, i.creator_email, i.status, i.created_at
+  from ideas i
+  order by i.created_at desc;
+end;
+$$;
+
+
 -- 6. Row-Level Security (RLS) Setup
 alter table ideas enable row level security;
 alter table idea_supports enable row level security;

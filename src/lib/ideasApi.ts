@@ -313,3 +313,176 @@ export async function submitIdea(input: SubmitIdeaInput): Promise<{ success: boo
     message: 'Thanks — your concept is in review and will appear here once approved.',
   };
 }
+
+/**
+ * ==============================================================================
+ * Admin Operations & Moderation
+ * ==============================================================================
+ */
+
+export async function fetchAdminIdeas(): Promise<import('../types/idea').AdminIdea[]> {
+  if (isSupabaseConfigured && supabase) {
+    try {
+      // First try admin RPC function
+      const { data: rpcData, error: rpcError } = await supabase.rpc('admin_get_all_ideas');
+      if (!rpcError && rpcData) {
+        return rpcData as import('../types/idea').AdminIdea[];
+      }
+
+      // Fallback to direct select
+      const { data, error } = await supabase
+        .from('ideas')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (!error && data) {
+        return data as import('../types/idea').AdminIdea[];
+      }
+    } catch (err) {
+      console.warn('[Admin ideas fetch error]', err);
+    }
+  }
+
+  // Fallback representation for local development
+  return localFallbackIdeas.map((idea) => ({
+    ...idea,
+    creator_email: 'admin@agenticcity.ai',
+    status: 'approved' as import('../types/idea').IdeaStatus,
+  }));
+}
+
+export async function adminCreateIdea(input: import('../types/idea').CreateAdminIdeaInput): Promise<{ success: boolean; message?: string; error?: string }> {
+  if (!input.title?.trim() || !input.pitch?.trim()) {
+    return { success: false, error: 'Title and Pitch are required.' };
+  }
+
+  const payload = {
+    p_title: input.title.trim(),
+    p_pitch: input.pitch.trim(),
+    p_architecture_blueprint: input.architecture_blueprint?.trim() || null,
+    p_category: input.category,
+    p_stage: input.stage || 'concept',
+    p_support_goal: Number(input.support_goal) || 100,
+    p_support_count: Number(input.support_count) || 0,
+    p_creator_handle: input.creator_handle?.trim() || null,
+    p_creator_email: input.creator_email?.trim() || 'admin@agenticcity.ai',
+    p_status: input.status || 'approved',
+  };
+
+  if (isSupabaseConfigured && supabase) {
+    try {
+      const { data, error } = await supabase.rpc('admin_create_idea', payload);
+      if (!error && data?.success) {
+        return { success: true, message: 'Idea published successfully.' };
+      }
+
+      // Fallback direct insert
+      const { error: insertErr } = await supabase.from('ideas').insert({
+        title: payload.p_title,
+        pitch: payload.p_pitch,
+        architecture_blueprint: payload.p_architecture_blueprint,
+        category: payload.p_category,
+        stage: payload.p_stage,
+        support_goal: payload.p_support_goal,
+        support_count: payload.p_support_count,
+        creator_handle: payload.p_creator_handle,
+        creator_email: payload.p_creator_email,
+        status: payload.p_status,
+      });
+
+      if (insertErr) throw insertErr;
+      return { success: true, message: 'Idea published successfully.' };
+    } catch (err: any) {
+      console.error('[Admin create idea error]', err);
+      return { success: false, error: err.message || 'Failed to create idea.' };
+    }
+  }
+
+  // Local fallback
+  const newLocalIdea: import('../types/idea').Idea = {
+    id: 'local_' + Date.now(),
+    title: payload.p_title,
+    pitch: payload.p_pitch,
+    architecture_blueprint: payload.p_architecture_blueprint,
+    category: payload.p_category,
+    stage: payload.p_stage as any,
+    support_goal: payload.p_support_goal,
+    support_count: payload.p_support_count,
+    creator_handle: payload.p_creator_handle,
+    created_at: new Date().toISOString(),
+  };
+  localFallbackIdeas.unshift(newLocalIdea);
+
+  return { success: true, message: 'Idea published locally.' };
+}
+
+export async function adminUpdateIdeaStatus(ideaId: string, status: import('../types/idea').IdeaStatus): Promise<{ success: boolean; error?: string }> {
+  if (isSupabaseConfigured && supabase) {
+    try {
+      const { data, error } = await supabase.rpc('admin_update_idea_status', {
+        p_idea_id: ideaId,
+        p_status: status,
+      });
+
+      if (!error && data?.success) {
+        return { success: true };
+      }
+
+      const { error: directErr } = await supabase
+        .from('ideas')
+        .update({ status })
+        .eq('id', ideaId);
+
+      if (directErr) throw directErr;
+      return { success: true };
+    } catch (err: any) {
+      console.error('[Admin update status error]', err);
+      return { success: false, error: err.message || 'Failed to update idea status.' };
+    }
+  }
+
+  return { success: true };
+}
+
+export async function adminDeleteIdea(ideaId: string): Promise<{ success: boolean; error?: string }> {
+  if (isSupabaseConfigured && supabase) {
+    try {
+      const { data, error } = await supabase.rpc('admin_delete_idea', {
+        p_idea_id: ideaId,
+      });
+
+      if (!error && data?.success) {
+        return { success: true };
+      }
+
+      const { error: directErr } = await supabase.from('ideas').delete().eq('id', ideaId);
+      if (directErr) throw directErr;
+      return { success: true };
+    } catch (err: any) {
+      console.error('[Admin delete idea error]', err);
+      return { success: false, error: err.message || 'Failed to delete idea.' };
+    }
+  }
+
+  localFallbackIdeas = localFallbackIdeas.filter((i) => i.id !== ideaId);
+  return { success: true };
+}
+
+export async function fetchAdminStrategyCalls(): Promise<any[]> {
+  if (isSupabaseConfigured && supabase) {
+    try {
+      const { data, error } = await supabase
+        .from('strategy_calls')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (!error && data) {
+        return data;
+      }
+    } catch (err) {
+      console.warn('[Admin strategy_calls fetch error]', err);
+    }
+  }
+  return [];
+}
+

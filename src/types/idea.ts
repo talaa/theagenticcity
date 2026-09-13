@@ -27,6 +27,11 @@ export interface Idea {
   created_at: string;
 }
 
+export interface AdminIdea extends Idea {
+  creator_email: string;
+  status: IdeaStatus;
+}
+
 /**
  * Payload for submitting a new idea for review (email required for lead-capture).
  */
@@ -39,6 +44,16 @@ export interface SubmitIdeaInput {
   creator_handle?: string;
   creator_email: string;
 }
+
+/**
+ * Payload for Admin creating an idea directly.
+ */
+export interface CreateAdminIdeaInput extends SubmitIdeaInput {
+  stage?: IdeaStage;
+  status?: IdeaStatus;
+  support_count?: number;
+}
+
 
 export interface SupportIdeaResult {
   success: boolean;

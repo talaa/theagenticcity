@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo } from 'react';
+import { Link } from 'react-router-dom';
 import { PageMeta } from '../components/PageMeta';
 import { Idea, IdeaCategory, IdeaStage, CATEGORY_LABELS, STAGE_CONFIG } from '../types/idea';
 import { fetchApprovedIdeas } from '../lib/ideasApi';
@@ -172,15 +173,26 @@ export function IdeasLab() {
                 })}
               </div>
 
-              {/* Submit CTA */}
-              <button
-                type="button"
-                onClick={() => setIsSubmitModalOpen(true)}
-                className="shrink-0 inline-flex items-center gap-2 px-6 py-2.5 bg-secondary text-on-secondary font-label-caps text-xs rounded-full hover:shadow-[0_0_20px_rgba(197,160,89,0.35)] transition-all cursor-pointer shadow-md"
-              >
-                <span className="material-symbols-outlined text-[16px]">add_circle</span>
-                <span>Submit Concept</span>
-              </button>
+              {/* Action Buttons */}
+              <div className="flex items-center gap-3">
+                <Link
+                  to="/lab/admin"
+                  className="shrink-0 inline-flex items-center gap-1.5 px-4 py-2.5 rounded-full border border-glass-border font-label-caps text-xs text-on-surface hover:bg-black/5 transition-all"
+                  title="Open Admin Moderation Console"
+                >
+                  <span className="material-symbols-outlined text-[16px] text-primary">admin_panel_settings</span>
+                  <span>Admin Console</span>
+                </Link>
+
+                <button
+                  type="button"
+                  onClick={() => setIsSubmitModalOpen(true)}
+                  className="shrink-0 inline-flex items-center gap-2 px-6 py-2.5 bg-secondary text-on-secondary font-label-caps text-xs rounded-full hover:shadow-[0_0_20px_rgba(197,160,89,0.35)] transition-all cursor-pointer shadow-md"
+                >
+                  <span className="material-symbols-outlined text-[16px]">add_circle</span>
+                  <span>Submit Concept</span>
+                </button>
+              </div>
             </div>
 
             {/* Bottom Row: Search, Stage Filter & Sort Selector */}

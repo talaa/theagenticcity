@@ -26,6 +26,7 @@ export function Layout() {
   const isHome = location.pathname === '/';
   const isTools = location.pathname.startsWith('/tools');
   const isInsights = location.pathname.startsWith('/insights');
+  const isLab = location.pathname.startsWith('/lab');
 
   return (
     <div className="bg-background font-body-md text-on-surface min-h-screen overflow-x-hidden flex flex-col">
@@ -48,7 +49,7 @@ export function Layout() {
             />
           </Link>
 
-          <nav className="hidden lg:flex items-center gap-8">
+          <nav className="hidden lg:flex items-center gap-7">
             <a
               href="#hero"
               onClick={(e) => handleAnchorClick(e, '#hero')}
@@ -97,6 +98,16 @@ export function Layout() {
             >
               <span className="material-symbols-outlined text-[16px] text-primary">build</span>
               TOOLS
+            </Link>
+            <Link
+              to="/lab/ideas"
+              onClick={() => setMobileMenuOpen(false)}
+              className={`font-label-caps text-label-caps py-1 transition-colors flex items-center gap-1.5 ${
+                isLab ? 'text-primary border-b-2 border-primary font-bold' : 'text-on-surface-variant hover:text-on-surface'
+              }`}
+            >
+              <span className="material-symbols-outlined text-[16px] text-primary">science</span>
+              COMMUNITY LAB
             </Link>
           </nav>
 

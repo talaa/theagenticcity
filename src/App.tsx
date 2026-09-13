@@ -8,6 +8,7 @@ import { AgentCanvasTool } from './pages/AgentCanvasTool';
 import { InsightsIndex } from './pages/InsightsIndex';
 import { InsightDetail } from './pages/InsightDetail';
 import { IdeasLab } from './pages/IdeasLab';
+import { IdeasAdmin } from './pages/IdeasAdmin';
 
 export default function App() {
   return (
@@ -22,6 +23,7 @@ export default function App() {
           <Route path="insights" element={<InsightsIndex />} />
           <Route path="insights/:slug" element={<InsightDetail />} />
           <Route path="lab/ideas" element={<IdeasLab />} />
+          <Route path="lab/admin" element={<IdeasAdmin />} />
         </Route>
       </Routes>
     </>
